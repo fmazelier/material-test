@@ -1,0 +1,183 @@
+<!-- =========================================================================
+  Dropzone area
+  ========================================================================= -->
+<div
+  class="dropzone"
+  [class.dropzone--dragging]="isDragging()"
+  [class.dropzone--disabled]="effectiveDisabled()"
+  role="button"
+  [attr.tabindex]="effectiveDisabled() ? -1 : 0"
+  [attr.aria-disabled]="effectiveDisabled()"
+  [attr.aria-label]="label()"
+  matRipple
+  [matRippleDisabled]="effectiveDisabled()"
+  (click)="openFilePicker()"
+  (keydown.enter)="$event.preventDefault(); openFilePicker()"
+  (keydown.space)="$event.preventDefault(); openFilePicker()"
+>
+  <!-- Hidden native file input, opened programmatically -->
+  <input
+    #fileInput
+    type="file"
+    class="file-input"
+    [accept]="acceptedTypesString()"
+    [multiple]="!isSingleMode()"
+    [disabled]="effectiveDisabled()"
+    (change)="onFileInputChange($event)"
+    aria-hidden="true"
+    tabindex="-1"
+  />
+
+  <mat-icon class="dropzone__icon" aria-hidden="true">cloud_upload</mat-icon>
+  <p class="dropzone__label">{{ label() }}</p>
+
+  @if (hint()) {
+    <p class="dropzone__hint">{{ hint() }}</p>
+  }
+</div>
+
+<!-- =========================================================================
+  File list
+  ========================================================================= -->
+@if (fileEntries().length > 0) {
+  <div class="file-list" role="list">
+
+    <!-- Single-file mode: one row -->
+    @if (isSingleMode()) {
+      @let entry = fileEntries()[0];
+      <div class="file-row" role="listitem">
+        <mat-icon class="file-row__icon" aria-hidden="true">
+          insert_drive_file
+        </mat-icon>
+
+        <div class="file-row__info">
+          <span class="file-row__name" [title]="entry.file.name">
+            {{ entry.file.name }}
+          </span>
+          <span class="file-row__size">
+            {{ formatFileSize(entry.file.size) }}
+          </span>
+        </div>
+
+        @switch (entry.status) {
+          @case ('uploading') {
+            <!-- Progress is shown in the progress bar below -->
+          }
+          @case ('success') {
+            <mat-icon
+              class="file-row__status file-row__status--success"
+              aria-label="Upload successful"
+            >check_circle</mat-icon>
+          }
+          @case ('error') {
+            <mat-icon
+              class="file-row__status file-row__status--error"
+              [matTooltip]="entry.error ?? 'Upload failed'"
+              aria-label="Upload failed"
+            >error</mat-icon>
+            <button
+              mat-icon-button
+              (click)="$event.stopPropagation(); retryFile(entry.id)"
+              aria-label="Retry upload"
+            >
+              <mat-icon>refresh</mat-icon>
+            </button>
+          }
+        }
+
+        @if (!effectiveDisabled()) {
+          <button
+            mat-icon-button
+            (click)="$event.stopPropagation(); removeFile(entry.id)"
+            [attr.aria-label]="'Remove ' + entry.file.name"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+    <!-- Multi-file mode: chip set -->
+    } @else {
+      <mat-chip-set
+        role="list"
+        aria-label="Selected files"
+        [attr.aria-disabled]="effectiveDisabled()"
+      >
+        @for (entry of fileEntries(); track entry.id) {
+          <mat-chip
+            role="listitem"
+            [attr.aria-label]="entry.file.name"
+            (removed)="removeFile(entry.id)"
+          >
+            @switch (entry.status) {
+              @case ('success') {
+                <mat-icon
+                  matChipAvatar
+                  class="chip-status chip-status--success"
+                  aria-hidden="true"
+                >check_circle</mat-icon>
+              }
+              @case ('error') {
+                <mat-icon
+                  matChipAvatar
+                  class="chip-status chip-status--error"
+                  [matTooltip]="entry.error ?? 'Upload failed'"
+                  aria-hidden="true"
+                >error</mat-icon>
+              }
+              @default {
+                <mat-icon matChipAvatar aria-hidden="true">
+                  insert_drive_file
+                </mat-icon>
+              }
+            }
+
+            <span>{{ entry.file.name }}</span>
+            <span class="chip-size">({{ formatFileSize(entry.file.size) }})</span>
+
+            @if (entry.status === 'error') {
+              <button
+                mat-icon-button
+                class="chip-retry"
+                (click)="$event.stopPropagation(); retryFile(entry.id)"
+                aria-label="Retry upload"
+              >
+                <mat-icon>refresh</mat-icon>
+              </button>
+            }
+
+            @if (!effectiveDisabled()) {
+              <button
+                matChipRemove
+                [attr.aria-label]="'Remove ' + entry.file.name"
+              >
+                <mat-icon>cancel</mat-icon>
+              </button>
+            }
+          </mat-chip>
+        }
+      </mat-chip-set>
+    }
+
+  </div>
+}
+
+<!-- =========================================================================
+  Upload progress bar
+  ========================================================================= -->
+@if (effectiveShowProgressBar() && isUploading()) {
+  <mat-progress-bar
+    class="upload-progress"
+    [mode]="progressMode()"
+    [value]="overallProgress()"
+    aria-label="Upload progress"
+    [attr.aria-valuenow]="overallProgress()"
+  ></mat-progress-bar>
+}
+
+<!-- =========================================================================
+  Accessible live region for status announcements
+  ========================================================================= -->
+<div class="sr-only" aria-live="polite" aria-atomic="true">
+  {{ statusAnnouncement() }}
+</div>
