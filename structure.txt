@@ -1,0 +1,75 @@
+/src
+  /app
+    /core
+      /services
+      /interceptors
+      /guards
+      /config
+
+    /shared
+      /ui
+      /directives
+      /pipes
+      /utils
+      /models
+
+    /layout
+      /shell
+      /header
+      /sidebar
+
+    /features
+      /users
+        /pages
+        /components
+        /services
+        /models
+
+      /orders
+        /pages
+        /components
+        /services
+        /models
+
+
+
+service model :
+import { Injectable, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+interface User {
+  id: string;
+  name: string;
+}
+
+/features/users/services/users.service.ts
+
+@Injectable({ providedIn: 'root' })
+export class UsersService {
+  private readonly http = inject(HttpClient);
+
+  // STATE
+  private readonly _users = signal<User[]>([]);
+  private readonly _loading = signal(false);
+
+  // SELECTORS
+  readonly users = this._users.asReadonly();
+  readonly loading = this._loading.asReadonly();
+
+  readonly userCount = computed(() => this._users().length);
+
+  // ACTIONS
+  loadUsers() {
+    this._loading.set(true);
+
+    this.http.get<User[]>('/api/users').subscribe({
+      next: (users) => this._users.set(users),
+      error: () => this._loading.set(false),
+      complete: () => this._loading.set(false),
+    });
+  }
+
+  addUser(user: User) {
+    this._users.update(list => [...list, user]);
+  }
+}
