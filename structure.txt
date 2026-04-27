@@ -73,3 +73,360 @@ export class UsersService {
     this._users.update(list => [...list, user]);
   }
 }
+
+
+File compponeent
+
+import { Component, ElementRef, HostListener, Input, ViewChild, signal, forwardRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-file-uploader',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatTooltipModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FileUploaderComponent),
+      multi: true
+    }
+  ],
+  template: `
+    <div class="flex flex-col gap-2">
+      <div
+        #dropZone
+        (click)="fileInput.click()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        [class.is-dragging]="isDragging()"
+        class="relative flex flex-col items-center justify-center w-full min-h-40 p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200
+               bg-gray-50 border-gray-300 hover:bg-gray-100 hover:border-primary-400
+               [&.is-dragging]:bg-primary-50 [&.is-dragging]:border-primary-500 [&.is-dragging]:scale-[1.01]"
+      >
+        <input
+          #fileInput
+          type="file"
+          class="hidden"
+          [accept]="accept"
+          [multiple]="multiple"
+          (change)="onFileChange($event)"
+        />
+
+        <mat-icon class="text-4xl w-10 h-10 mb-2 text-gray-400">cloud_upload</mat-icon>
+        <p class="text-sm text-gray-600 font-medium">
+          {{ multiple ? 'Glissez vos fichiers ici' : 'Glissez votre fichier ici' }}
+        </p>
+        <p class="text-xs text-gray-400 mt-1">Ou cliquez pour parcourir (Max: {{ maxFileSizeMB }}Mo)</p>
+      </div>
+
+      @if (selectedFiles().length > 0) {
+        <ul class="flex flex-col gap-2 mt-2">
+          @for (file of selectedFiles(); track file.name) {
+            <li class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm animate-in fade-in slide-in-from-top-1">
+              <div class="flex items-center gap-3 overflow-hidden">
+                @if (isImage(file)) {
+                  <img [src]="getPreview(file)" class="w-10 h-10 rounded object-cover shadow-xs" />
+                } @else {
+                  <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded">
+                    <mat-icon class="text-gray-400">description</mat-icon>
+                  </div>
+                }
+
+                <div class="flex flex-col overflow-hidden">
+                  <span class="text-sm font-medium truncate">{{ file.name }}</span>
+                  <span class="text-xs text-gray-400 font-mono">{{ (file.size / 1024 / 1024).toFixed(2) }} Mo</span>
+                </div>
+              </div>
+
+              <button mat-icon-button color="warn" (click)="removeFile(file, $event)" type="button">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  `,
+  styles: [`
+    :host { display: block; }
+    .text-primary-500 { color: var(--md-sys-color-primary); }
+    .border-primary-500 { border-color: var(--md-sys-color-primary); }
+    .bg-primary-50 { background-color: color-mix(in srgb, var(--md-sys-color-primary), white 90%); }
+  `]
+})
+export class FileUploaderComponent implements ControlValueAccessor {
+  @Input() accept = '*';
+  @Input() multiple = false;
+  @Input() maxFileSizeMB = 10; // 10Mo par défaut
+
+  selectedFiles = signal<File[]>([]);
+  isDragging = signal(false);
+
+  // Pour le ControlValueAccessor
+  onChange = (value: any) => {};
+  onTouched = () => {};
+
+  // --- Gestion du Drag & Drop ---
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files) this.processFiles(files);
+  }
+
+  // --- Logique métier ---
+  onFileChange(event: any) {
+    const files = event.target.files;
+    this.processFiles(files);
+  }
+
+  private processFiles(fileList: FileList) {
+    let files = Array.from(fileList);
+
+    // Validation taille
+    files = files.filter(f => f.size / 1024 / 1024 <= this.maxFileSizeMB);
+
+    if (this.multiple) {
+      const current = this.selectedFiles();
+      this.selectedFiles.set([...current, ...files]);
+    } else {
+      this.selectedFiles.set(files.slice(0, 1));
+    }
+
+    this.notifyParent();
+  }
+
+  removeFile(file: File, event: MouseEvent) {
+    event.stopPropagation();
+    this.selectedFiles.update(files => files.filter(f => f !== file));
+    this.notifyParent();
+  }
+
+  private notifyParent() {
+    const value = this.multiple ? this.selectedFiles() : (this.selectedFiles()[0] || null);
+    this.onChange(value);
+    this.onTouched();
+  }
+
+  // --- Helpers ---
+  isImage(file: File): boolean {
+    return file.type.startsWith('image/');
+  }
+
+  getPreview(file: File): string {
+    return URL.createObjectURL(file);
+  }
+
+  // --- Méthodes ControlValueAccessor ---
+  writeValue(value: any): void {
+    if (!value) {
+      this.selectedFiles.set([]);
+    } else {
+      this.selectedFiles.set(Array.isArray(value) ? value : [value]);
+    }
+  }
+  registerOnChange(fn: any): void { this.onChange = fn; }
+  registerOnTouched(fn: any): void { this.onTouched = fn; }
+}
+
+
+usage :
+<form [formGroup]="myForm">
+  <label class="block mb-2 font-bold text-gray-700">Documents justificatifs</label>
+
+  <app-file-uploader
+    formControlName="documents"
+    [multiple]="true"
+    accept=".pdf,image/*"
+    [maxFileSizeMB]="5">
+  </app-file-uploader>
+</form>
+
+version avec mat form field
+
+import { Component, ElementRef, HostBinding, Input, OnDestroy, Optional, Self, ViewChild, computed, signal } from '@angular/core';
+import { ControlValueAccessor, NgControl, Validators } from '@angular/forms';
+import { MatFormFieldControl } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { Subject } from 'rxjs';
+import { FocusMonitor } from '@angular/cdk/a11y';
+
+@Component({
+  selector: 'app-file-control',
+  standalone: true,
+  imports: [MatIconModule],
+  providers: [{ provide: MatFormFieldControl, useExisting: FileFormControlComponent }],
+  template: `
+    <div
+      class="flex items-center gap-2 w-full cursor-pointer min-h-[1.5rem]"
+      (click)="fileInput.click()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      [class.opacity-50]="disabled()"
+    >
+      <input #fileInput type="file" class="hidden" [multiple]="multiple" [accept]="accept" (change)="onFileChange($event)">
+
+      <div class="flex-1 truncate text-sm font-normal">
+        @if (empty()) {
+          <span class="text-gray-400 italic">{{ placeholder }}</span>
+        } @else {
+          <span class="text-gray-900">{{ displayText() }}</span>
+        }
+      </div>
+
+      <mat-icon class="text-gray-400 scale-90">attach_file</mat-icon>
+    </div>
+  `,
+  styles: `
+    :host { display: block; }
+  `
+})
+export class FileFormControlComponent implements ControlValueAccessor, MatFormFieldControl<File | File[]>, OnDestroy {
+  // --- Propriétés obligatoires MatFormFieldControl ---
+  static nextId = 0;
+  @HostBinding() id = `file-control-${FileFormControlComponent.nextId++}`;
+
+  stateChanges = new Subject<void>();
+  focused = signal(false);
+  touched = signal(false);
+  disabled = signal(false);
+
+  @Input() placeholder: string = '';
+  @Input() multiple = false;
+  @Input() accept = '*';
+  @Input() required: boolean = false;
+
+  // Valeur interne
+  valueSignal = signal<File | File[] | null>(null);
+
+  // Getters/Setters pour le form field
+  get value() { return this.valueSignal(); }
+  set value(val: File | File[] | null) {
+    this.valueSignal.set(val);
+    this.onChange(val);
+    this.stateChanges.next();
+  }
+
+  // Est-ce que le champ est vide ? (Détermine si le label flotte)
+  empty = computed(() => {
+    const val = this.valueSignal();
+    return Array.isArray(val) ? val.length === 0 : val === null;
+  });
+
+  @HostBinding('class.floating')
+  get shouldLabelFloat() { return this.focused() || !this.empty(); }
+
+  get errorState(): boolean {
+    return !!(this.ngControl?.invalid && (this.ngControl?.touched || this.touched()));
+  }
+
+  controlType = 'app-file-control';
+
+  // Texte à afficher dans le champ
+  displayText = computed(() => {
+    const val = this.valueSignal();
+    if (!val) return '';
+    if (Array.isArray(val)) return `${val.length} fichiers sélectionnés`;
+    return val.name;
+  });
+
+  constructor(
+    @Optional() @Self() public ngControl: NgControl,
+    private fm: FocusMonitor,
+    private elRef: ElementRef<HTMLElement>
+  ) {
+    if (this.ngControl) this.ngControl.valueAccessor = this;
+
+    // Gère le focus pour l'accessibilité
+    this.fm.monitor(elRef.nativeElement, true).subscribe(origin => {
+      this.focused.set(!!origin);
+      this.stateChanges.next();
+    });
+  }
+
+  // --- Logique de fichier ---
+  onFileChange(event: any) {
+    const files = Array.from(event.target.files as FileList);
+    this.value = this.multiple ? files : (files[0] || null);
+    this.onTouched();
+  }
+
+  onDragOver(e: DragEvent) { e.preventDefault(); this.focused.set(true); }
+  onDragLeave(e: DragEvent) { e.preventDefault(); this.focused.set(false); }
+  onDrop(e: DragEvent) {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer?.files || []);
+    this.value = this.multiple ? files : (files[0] || null);
+    this.onTouched();
+    this.focused.set(false);
+  }
+
+  // --- ControlValueAccessor ---
+  onChange = (_: any) => {};
+  onTouched = () => { this.touched.set(true); this.stateChanges.next(); };
+  writeValue(value: any): void { this.valueSignal.set(value); this.stateChanges.next(); }
+  registerOnChange(fn: any): void { this.onChange = fn; }
+  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  setDisabledState(isDisabled: boolean): void { this.disabled.set(isDisabled); this.stateChanges.next(); }
+
+  // --- Nettoyage ---
+  ngOnDestroy() {
+    this.stateChanges.complete();
+    this.fm.stopMonitoring(this.elRef.nativeElement);
+  }
+
+  // Obligatoire pour MatFormFieldControl
+  setDescribedByIds(ids: string[]) {}
+  onContainerClick(event: MouseEvent) {
+    if ((event.target as Element).tagName.toLowerCase() !== 'input') {
+      this.elRef.nativeElement.querySelector('input')?.click();
+    }
+  }
+}
+
+Usagee :
+<form [formGroup]="userForm" class="p-8 max-w-md mx-auto flex flex-col gap-4">
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Votre CV (PDF)</mat-label>
+
+    <app-file-control
+      formControlName="cv"
+      accept=".pdf"
+      placeholder="Cliquer ou glisser ici..."
+    ></app-file-control>
+
+    <mat-icon matPrefix class="mr-2 text-gray-400">description</mat-icon>
+    <mat-hint>Max 5 Mo</mat-hint>
+
+    @if (userForm.get('cv')?.hasError('required')) {
+      <mat-error>Le CV est obligatoire</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="w-full">
+    <mat-label>Photos du projet</mat-label>
+    <app-file-control formControlName="photos" [multiple]="true" accept="image/*"></app-file-control>
+  </mat-form-field>
+
+</form>
