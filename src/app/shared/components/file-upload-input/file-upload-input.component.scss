@@ -1,0 +1,57 @@
+@use '@angular/material' as mat;
+
+:host {
+  @include mat.progress-spinner-overrides(
+    (
+      active-indicator-color: var(--mat-sys-on-primary),
+    )
+  );
+}
+
+mat-icon {
+  overflow: unset;
+}
+
+mat-card {
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.drop-zone {
+  border: 2px dashed var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  transition: all 200ms ease;
+  cursor: pointer;
+
+  mat-icon {
+    color: var(--mat-sys-on-surface-variant);
+    transition:
+      transform 200ms ease,
+      color 200ms ease;
+  }
+
+  &.dragging,
+  &:focus-visible,
+  &:focus {
+    background-color: color-mix(in oklch, var(--mat-sys-primary) 12%, transparent);
+    border-color: var(--mat-sys-primary);
+    outline: none;
+
+    mat-icon {
+      transform: translateY(-4px) scale(1.15);
+      color: var(--mat-sys-primary);
+    }
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.file-item {
+  border: 1px solid var(--mat-sys-outline-variant);
+  transition: background-color 150ms ease;
+}

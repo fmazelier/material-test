@@ -1,24 +1,46 @@
-<div class="flex flex-col absolute inset-0" [class.is-mobile]="isMobile()">
-  <mat-toolbar class="toolbar w-full">
-    <button matIconButton (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
-    <h1 class="ml-8">AnOS PDF Transformation</h1>
+<div class="flex flex-col absolute inset-0">
+  <mat-toolbar class="w-full">
+    <button matIconButton (click)="snav.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <h1>AnOS PDF Transformation</h1>
+
     <div class="flex-1"></div>
-      <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
-        @if (themeService.isDark()) { <mat-icon>light_mode</mat-icon> } @else { <mat-icon>dark_mode</mat-icon> }
-      </button>
+
+    <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
+      @if (themeService.isDark()) {
+        <mat-icon>light_mode</mat-icon>
+      } @else {
+        <mat-icon>dark_mode</mat-icon>
+      }
+    </button>
   </mat-toolbar>
 
-  <mat-sidenav-container class="sidenav-container" [style.marginTop.px]="isMobile() ? 56 : 0">
-    <mat-sidenav #snav [mode]="isMobile() ? 'over' : 'side'" [fixedInViewport]="isMobile()" fixedTopGap="56">
+  <mat-sidenav-container class="flex-1">
+    <mat-sidenav
+      #snav
+      [mode]="isMobile() ? 'over' : 'side'"
+      [fixedInViewport]="isMobile()"
+      fixedTopGap="56"
+    >
       <mat-nav-list>
         @for (link of navLinks; track link.href) {
-          <a mat-list-item [routerLink]="link.href" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ link.label }}</a>
+          <a
+            mat-list-item
+            [routerLink]="link.href"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >{{ link.label }}</a
+          >
         }
       </mat-nav-list>
     </mat-sidenav>
 
     <mat-sidenav-content>
-      <ng-content />
+      <main class="p-4 mx-auto h-full max-w-400">
+        <ng-content />
+      </main>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

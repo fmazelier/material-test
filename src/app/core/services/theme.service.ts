@@ -1,4 +1,4 @@
-import { effect, Injectable, signal } from '@angular/core';
+import { computed, effect, Injectable, signal } from '@angular/core';
 
 type Theme = 'light' | 'dark';
 
@@ -6,28 +6,35 @@ type Theme = 'light' | 'dark';
 export class ThemeService {
   private readonly theme = signal<Theme>(this.getInitialTheme());
 
-  constructor() {
-    console.log('initial theme', this.theme());
-    effect(() => {
-      const isDark = this.theme() === 'dark';
+  readonly currentTheme = this.theme.asReadonly();
+  readonly isDark = computed(() => this.currentTheme() === 'dark');
 
-      document.documentElement.classList.toggle('dark', isDark);
-      localStorage.setItem('theme', this.theme());
+  constructor() {
+    effect(() => {
+      const theme = this.theme();
+      document.documentElement.classList.toggle('dark', this.isDark());
+
+      // persist only if explicitly chosen
+      if (this.isUserPreference) {
+        localStorage.setItem('theme', theme);
+      }
     });
 
     this.listenToSystemTheme();
   }
 
-  toggle() {
-    this.theme.update(t => (t === 'dark' ? 'light' : 'dark'));
+  toggle(): void {
+    const next = this.theme() === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    this.theme.set(next);
   }
 
-  set(theme: Theme) {
+  private get isUserPreference(): boolean {
+    return localStorage.getItem('theme') !== null;
+  }
+
+  private set(theme: Theme): void {
     this.theme.set(theme);
-  }
-
-  isDark() {
-    return this.theme() === 'dark';
   }
 
   private getInitialTheme(): Theme {
@@ -41,12 +48,12 @@ export class ThemeService {
     return prefersDark ? 'dark' : 'light';
   }
 
-  private listenToSystemTheme() {
+  private listenToSystemTheme(): void {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
 
-    media.addEventListener('change', e => {
+    media.addEventListener('change', (e) => {
       // change nothing if the user has explicitly chosen a theme
-      if (!localStorage.getItem('theme')) {
+      if (!this.isUserPreference) {
         this.set(e.matches ? 'dark' : 'light');
       }
     });

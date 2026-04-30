@@ -5,23 +5,32 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink, RouterLinkActive } from "@angular/router";
-import { ThemeService } from '../../core/services/theme.service';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+
+import { ThemeService } from '@core/services/theme.service';
 
 type NavLink = {
   label: string;
   href: string;
-}
+};
 
 @Component({
   selector: 'app-navbar',
   imports: [
-    MatToolbarModule, MatButtonModule, MatIconModule, MatSidenavModule, MatListModule,
-    RouterLink, RouterLinkActive
-],
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSidenavModule,
+    MatListModule,
+    RouterLink,
+    RouterLinkActive,
+  ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.is-mobile]': 'isMobile()',
+  },
 })
 export class NavbarComponent {
   private readonly media = inject(MediaMatcher);
@@ -33,8 +42,8 @@ export class NavbarComponent {
   private readonly _mobileQueryListener: () => void;
 
   protected readonly navLinks: NavLink[] = [
-    { label: 'Home', href: '/' },
-    { label: 'Form', href: '/form' },
+    { label: 'Accueil', href: '/home' },
+    { label: 'Formulaire', href: '/pdf-masking-form' },
   ];
 
   constructor() {

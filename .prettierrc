@@ -1,6 +1,13 @@
 {
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "printWidth": 100,
   "singleQuote": true,
+  "semi": true,
+  "arrowParens": "always",
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "useTabs": false,
+  "endOfLine": "lf",
   "overrides": [
     {
       "files": "*.html",
@@ -8,5 +15,28 @@
         "parser": "angular"
       }
     }
-  ]
+  ],
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "<SEPARATOR>",
+    "^@angular/(.*)$",
+    "^rxjs$",
+    "^rxjs/(.*)$",
+    "<SEPARATOR>",
+    "^@env/(.*)$",
+    "<SEPARATOR>",
+    "^(app|@core|@features|@layout|@shared)/(.*)$",
+    "<SEPARATOR>",
+    "<THIRD_PARTY_MODULES>",
+    "<SEPARATOR>",
+    "^\\.\\.\\/",
+    "<SEPARATOR>",
+    "^\\.\\/"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderGroupNamespaceSpecifiers": true,
+  "importOrderCaseInsensitive": true,
+  "importOrderParserPlugins": ["typescript", "decorators-legacy"],
+  "importOrderSideEffects": false
 }

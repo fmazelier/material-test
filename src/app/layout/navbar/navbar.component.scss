@@ -3,20 +3,19 @@ mat-toolbar {
   background: var(--mat-sys-primary-container);
 }
 
-.is-mobile .toolbar {
-  position: fixed;
-  z-index: 2;
-}
-
-.sidenav-container {
-  flex: 1;
-}
-
-.is-mobile .sidenav-container {
-  flex: 1 0 auto;
-}
-
 a.mat-mdc-list-item.active {
   background-color: var(--mat-sys-secondary-container);
   color: var(--mat-sys-on-secondary-container);
+}
+
+:host(.is-mobile) {
+  mat-toolbar {
+    position: fixed;
+    z-index: 2;
+  }
+
+  mat-sidenav-container {
+    flex: 1 0 auto;
+    margin-top: 56px;
+  }
 }

@@ -1,0 +1,175 @@
+<mat-card [class.disabled]="isDisabled()" class="h-full">
+  <mat-card-header class="flex! items-center justify-between">
+    <mat-card-title class="flex! items-center gap-2 text-base! mb-1.5!">
+      <mat-icon class="card-title-icon text-primary! text-xl w-5 h-5">upload_file</mat-icon>
+      {{ label() }}
+    </mat-card-title>
+    @if (maxFiles() > 1) {
+      <div
+        class="font-medium"
+        [matTooltip]="'Nombre de fichiers acceptés : ' + maxFiles()"
+        [matTooltipPosition]="'left'"
+      >
+        {{ files().length }} / {{ maxFiles() }}
+      </div>
+    }
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- drag & drop area -->
+    @if (dragDropEnabled()) {
+      <div
+        class="drop-zone flex flex-col items-center justify-center gap-2 py-6 px-4 mb-4"
+        [class.dragging]="isDragging()"
+        [class.disabled]="loading()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="openFilePicker($event)"
+        (keydown)="openFilePicker($event)"
+        [tabindex]="isDisabled() ? '-1' : '0'"
+        [matTooltip]="acceptedTypesTooltipLabel()"
+        [matTooltipPosition]="'above'"
+      >
+        <mat-icon class="text-4xl! w-10! h-10!">cloud_upload</mat-icon>
+        <span class="drop-label text-sm text-color-surface-variant">
+          @let label = maxFiles() > 1 ? 'Déposez vos fichiers ici' : 'Déposez votre fichier ici';
+          {{ isDragging() ? 'Relâchez pour ajouter' : label }}
+        </span>
+      </div>
+    }
+
+    <div class="action-buttons flex items-center gap-2 flex-wrap mb-2">
+      <input
+        #fileInputRef
+        type="file"
+        [accept]="accept()"
+        [multiple]="multiple()"
+        (change)="onFileInputChange($event)"
+        class="hidden"
+        [disabled]="isDisabled() || loading()"
+        aria-hidden="true"
+        tabindex="-1"
+      />
+
+      <button
+        matButton="outlined"
+        type="button"
+        (click)="openFilePicker($event)"
+        [disabled]="isDisabled() || loading()"
+        [matTooltip]="acceptedTypesTooltipLabel()"
+      >
+        <mat-icon>folder_open</mat-icon>
+        Choisir
+      </button>
+
+      @if (showSubmitButton()) {
+        @let disabled = isDisabled() || files().length === 0;
+        <button
+          matButton="filled"
+          type="button"
+          (click)="upload()"
+          [disabled]="disabled"
+          [matTooltip]="submitButtonTooltilpLabel()"
+        >
+          <mat-icon>
+            @if (loading() && !disabled) {
+              <mat-spinner diameter="20" />
+            } @else {
+              cloud_upload
+            }
+          </mat-icon>
+          Envoyer
+        </button>
+      }
+
+      @if (showDeleteAllButton()) {
+        <button
+          matButton="outlined"
+          type="button"
+          (click)="cancelAll()"
+          [disabled]="isDisabled() || files().length === 0"
+          matTooltip="Supprimer tous les fichiers"
+        >
+          <mat-icon>cancel</mat-icon>
+          Annuler
+        </button>
+      }
+
+      @if (informationsTooltipLabel()) {
+        <mat-icon
+          class="text-primary!"
+          [matTooltip]="informationsTooltipLabel()"
+          matTooltipPosition="right"
+          >help</mat-icon
+        >
+      }
+    </div>
+
+    <!-- errors -->
+    @if (uploadErrors().length > 0) {
+      <div class="mt-2 mb-2 flex flex-col gap-1" role="alert">
+        @for (error of uploadErrors(); track $index) {
+          <div
+            class="text-error bg-error/10 text-s flex items-center gap-1.5 py-1.5 px-2.5 rounded-md"
+          >
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ error.message }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Files List -->
+    @if (files().length > 0) {
+      <mat-divider class="mt-3! mb-2!" />
+
+      <div class="files-info mb-2">
+        <span class="text-xs font-medium text-color-surface-variant">
+          {{ files().length }} fichier{{ files().length > 1 ? 's' : '' }} sélectionné{{
+            files().length > 1 ? 's' : ''
+          }}
+        </span>
+      </div>
+
+      <div class="flex flex-col gap-1" role="list">
+        @for (file of files(); track file.name; let i = $index) {
+          <div
+            class="file-item bg-surface-variant hover:bg-surface-variant-hover flex items-center content-between rounded-lg px-3 py-2"
+            role="listitem"
+          >
+            <div class="file-item-content flex items-center gap-2.5 min-w-0 flex-1">
+              <mat-icon class="text-primary!">{{ getFileIcon(file) }}</mat-icon>
+              <div class="flex flex-col min-w-0">
+                <span class="font-medium text-sm truncate" [matTooltip]="file.name">{{
+                  file.name
+                }}</span>
+                <span class="text-xs text-color-surface-variant">{{ formatSize(file.size) }}</span>
+              </div>
+            </div>
+            @if (!isDisabled() && !loading()) {
+              <button
+                mat-icon-button
+                type="button"
+                (click)="removeFile(i)"
+                [matTooltip]="'Supprimer ' + file.name"
+                class="hover:text-error!"
+                aria-label="Supprimer ce fichier"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (files().length === 0 && uploadErrors().length === 0) {
+      <div class="empty-state flex items-center gap-2 pt-4 pb-2 text-color-surface-variant text-s">
+        <mat-icon class="opacity-60">inbox</mat-icon>
+        <span>Aucun fichier sélectionné</span>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,46 @@
+import { Directive, effect, ElementRef, inject, input, OnDestroy, output } from '@angular/core';
+
+import lottie, {
+  AnimationConfigWithData,
+  AnimationConfigWithPath,
+  AnimationItem,
+} from 'lottie-web';
+
+export type LottieOptions = Partial<AnimationConfigWithPath | AnimationConfigWithData>;
+
+@Directive({
+  selector: '[appLottie]',
+})
+export class LottieDirective implements OnDestroy {
+  readonly options = input.required<LottieOptions>();
+
+  readonly animationCreated = output<AnimationItem>();
+
+  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+  private animationItem: AnimationItem | null = null;
+
+  constructor() {
+    effect(() => {
+      this.destroyAnimation();
+
+      this.animationItem = lottie.loadAnimation({
+        container: this.el.nativeElement,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        ...this.options(),
+      });
+
+      this.animationCreated.emit(this.animationItem);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyAnimation();
+  }
+
+  private destroyAnimation(): void {
+    this.animationItem?.destroy();
+    this.animationItem = null;
+  }
+}

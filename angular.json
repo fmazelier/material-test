@@ -11,15 +11,20 @@
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",
+          "changeDetection": "OnPush",
           "standalone": true,
           "type": "component",
-          "changeDetection": "OnPush"
+          "skipTests": true
         },
         "@schematics/angular:service": {
-          "type": "service"
+          "type": "service",
+          "flat": true,
+          "skipTests": true
         },
         "@schematics/angular:directive": {
-          "type": "directive"
+          "type": "directive",
+          "flat": true,
+          "skipTests": true
         }
       },
       "root": "",
