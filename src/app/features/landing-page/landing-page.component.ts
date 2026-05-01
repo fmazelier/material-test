@@ -17,7 +17,7 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
         Confiez-nous une liste de mots, un fichier PDF et on s'occupe du reste
       </p>
       <mat-card
-        class="h-full w-full max-w-100 max-h-100 overflow-hidden mat-card-elev-color-5 animate-fade-in-up [animation-delay:350ms]!"
+        class="h-full w-full max-w-100 max-h-100 overflow-hidden mat-card-color-elev-5 animate-fade-in-up [animation-delay:350ms]!"
       >
         <div appLottie [options]="lottieOptions"></div>
       </mat-card>
