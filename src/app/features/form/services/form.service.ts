@@ -5,7 +5,7 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 
 import { ConfigService } from '@core/services/config.service';
 
-import { UploadPdfResponse } from '../models/pdf-masking.model';
+import { UploadPdfResponse } from '../models/form.model';
 
 @Injectable({
   providedIn: 'root',

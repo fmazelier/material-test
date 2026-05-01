@@ -5,7 +5,7 @@ import { finalize, switchMap } from 'rxjs';
 
 import { FileUploadInputComponent } from '@shared/components/file-upload-input/file-upload-input.component';
 
-import { PdfMaskingService } from './services/pdf-masking.service';
+import { PdfMaskingService } from './services/form.service';
 
 @Component({
   selector: 'app-pdf-masking-form',

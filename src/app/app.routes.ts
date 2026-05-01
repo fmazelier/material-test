@@ -12,7 +12,7 @@ export const routes: Routes = [
   },
   {
     path: 'pdf-masking-form',
-    loadComponent: () => import('./features/pdf-masking-form/pdf-masking-form.component'),
+    loadComponent: () => import('./features/form/form.component'),
     title: 'formulaire',
   },
 ];
