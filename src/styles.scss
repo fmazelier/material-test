@@ -5,6 +5,7 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 @use './styles/theme' as theme;
+@use './styles/global';
 
 *,
 ::before,

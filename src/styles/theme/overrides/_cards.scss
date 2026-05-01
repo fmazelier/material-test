@@ -1,0 +1,75 @@
+@use '@angular/material' as mat;
+
+.mat-card-elev-color-1 {
+  @include mat.card-overrides(
+    (
+      elevated-container-elevation: var(--mat-sys-level1),
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      level1:
+        #{'0px 0px 2px 0px color-mix(in srgb, var(--mat-sys-primary) 10%, transparent), 0px 0px 4px 1px color-mix(in srgb, var(--mat-sys-primary) 6%, transparent)'},
+    )
+  );
+}
+
+.mat-card-elev-color-2 {
+  @include mat.card-overrides(
+    (
+      elevated-container-elevation: var(--mat-sys-level2),
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      level2:
+        #{'0px 0px 4px 1px color-mix(in srgb, var(--mat-sys-primary) 14%, transparent), 0px 0px 8px 2px color-mix(in srgb, var(--mat-sys-primary) 8%, transparent)'},
+    )
+  );
+}
+
+.mat-card-elev-color-3 {
+  @include mat.card-overrides(
+    (
+      elevated-container-elevation: var(--mat-sys-level3),
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      level3:
+        #{'0px 0px 6px 1px color-mix(in srgb, var(--mat-sys-primary) 17%, transparent), 0px 0px 12px 3px color-mix(in srgb, var(--mat-sys-primary) 10%, transparent)'},
+    )
+  );
+}
+
+.mat-card-elev-color-4 {
+  @include mat.card-overrides(
+    (
+      elevated-container-elevation: var(--mat-sys-level4),
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      // level4:
+      //   #{'0px 5px 5px -3px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent), 0px 8px 10px 1px color-mix(in srgb, var(--mat-sys-primary) 14%, transparent), 0px 3px 14px 2px color-mix(in srgb, var(--mat-sys-primary) 12%, transparent)'},
+      level4:
+        #{'0px 0px 8px 2px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent), 0px 0px 16px 4px color-mix(in srgb, var(--mat-sys-primary) 12%, transparent)'}
+    )
+  );
+}
+
+.mat-card-elev-color-5 {
+  @include mat.card-overrides(
+    (
+      elevated-container-elevation: var(--mat-sys-level5),
+    )
+  );
+  @include mat.theme-overrides(
+    (
+      // level5:
+      //   #{'0px 7px 8px -4px color-mix(in srgb, var(--mat-sys-primary) 35%, transparent), 0px 12px 17px 2px color-mix(in srgb, var(--mat-sys-primary) 25%, transparent), 0px 5px 22px 4px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent)'},
+      level5:
+        #{'0px 0px 12px 4px color-mix(in srgb, var(--mat-sys-primary) 28%, transparent), 0px 0px 24px 8px color-mix(in srgb, var(--mat-sys-primary) 16%, transparent)'}
+    )
+  );
+}
