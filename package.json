@@ -19,17 +19,17 @@
     "npm": ">=11"
   },
   "lint-staged": {
-    "src/**/*.{ts,html,scss}": [
-      "prettier --check"
-    ],
     "src/**/*.ts": [
-      "eslint --max-warnings 0"
+      "prettier --write",
+      "eslint --fix --max-warnings 0"
     ],
     "src/**/*.html": [
-      "eslint --max-warnings 0"
+      "prettier --write",
+      "eslint --fix --max-warnings 0"
     ],
     "src/**/*.scss": [
-      "stylelint"
+      "prettier --write",
+      "stylelint --fix"
     ]
   },
   "private": true,
