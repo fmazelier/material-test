@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
 
-.mat-card-elev-color-1 {
+.mat-card-color-elev-1 {
   @include mat.card-overrides(
     (
       elevated-container-elevation: var(--mat-sys-level1),
@@ -14,7 +14,7 @@
   );
 }
 
-.mat-card-elev-color-2 {
+.mat-card-color-elev-2 {
   @include mat.card-overrides(
     (
       elevated-container-elevation: var(--mat-sys-level2),
@@ -28,7 +28,7 @@
   );
 }
 
-.mat-card-elev-color-3 {
+.mat-card-color-elev-3 {
   @include mat.card-overrides(
     (
       elevated-container-elevation: var(--mat-sys-level3),
@@ -42,7 +42,7 @@
   );
 }
 
-.mat-card-elev-color-4 {
+.mat-card-color-elev-4 {
   @include mat.card-overrides(
     (
       elevated-container-elevation: var(--mat-sys-level4),
@@ -58,7 +58,7 @@
   );
 }
 
-.mat-card-elev-color-5 {
+.mat-card-color-elev-5 {
   @include mat.card-overrides(
     (
       elevated-container-elevation: var(--mat-sys-level5),
