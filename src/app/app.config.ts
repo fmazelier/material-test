@@ -10,7 +10,13 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
-import { PreloadAllModules, provideRouter, TitleStrategy, withPreloading } from '@angular/router';
+import {
+  PreloadAllModules,
+  provideRouter,
+  TitleStrategy,
+  withComponentInputBinding,
+  withPreloading,
+} from '@angular/router';
 
 import { ConfigService } from '@core/services/config.service';
 import { CustomTitleStrategyService } from '@core/services/custom-title-strategy.service';
@@ -27,7 +33,7 @@ export const appConfig: ApplicationConfig = {
       return configService.loadConfig();
     }),
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideZonelessChangeDetection(),
     provideEnvironmentInitializer(() => {
       inject(ThemeService);
