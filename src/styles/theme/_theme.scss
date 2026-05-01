@@ -1,16 +1,19 @@
 @use '@angular/material' as mat;
 @use './palettes' as palettes;
-// Import only the necessary Tailwind layers for theming and utilities
-@import "tailwindcss/theme" layer(theme);
-@import "tailwindcss/utilities" layer(utilities);
 
-$theme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary: palettes.$primary-palette,
-    tertiary: palettes.$tertiary-palette,
-  ),
-));
+// Import only the necessary Tailwind layers for theming and utilities
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
+
+$theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: palettes.$primary-palette,
+      tertiary: palettes.$tertiary-palette,
+    ),
+  )
+);
 
 @theme {
   /* Map Material theme colors to CSS variables for Tailwind */
