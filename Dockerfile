@@ -26,3 +26,4 @@ COPY --from=builder /app/dist/material-test/browser /usr/share/nginx/html/materi
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
+
