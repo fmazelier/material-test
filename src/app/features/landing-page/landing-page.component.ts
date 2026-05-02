@@ -9,7 +9,7 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
   selector: 'app-landing-page',
   imports: [RouterLink, MatButtonModule, LottieDirective, MatCardModule],
   template: `
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center text-center">
       <h1 class="text-4xl mb-0 animate-fade-in-up">
         Masquez les mots importants <span class="text-primary"> de votre PDF</span>
       </h1>

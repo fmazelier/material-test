@@ -32,7 +32,7 @@
         [matTooltipPosition]="'above'"
       >
         <mat-icon class="text-4xl! w-10! h-10!">cloud_upload</mat-icon>
-        <span class="drop-label text-sm text-color-surface-variant">
+        <span class="drop-label text-sm text-on-surface/70">
           @let label = maxFiles() > 1 ? 'Déposez vos fichiers ici' : 'Déposez votre fichier ici';
           {{ isDragging() ? 'Relâchez pour ajouter' : label }}
         </span>
@@ -108,7 +108,7 @@
 
     <!-- errors -->
     @if (uploadErrors().length > 0) {
-      <div class="mt-2 mb-2 flex flex-col gap-1" role="alert">
+      <div class="mt-2 mb-2 flex flex-col gap-1" role="alert" aria-live="polite">
         @for (error of uploadErrors(); track $index) {
           <div
             class="text-error bg-error/10 text-s flex items-center gap-1.5 py-1.5 px-2.5 rounded-md"

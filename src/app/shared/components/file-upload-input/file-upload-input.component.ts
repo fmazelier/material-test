@@ -41,7 +41,6 @@ export const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB;
 
 @Component({
   selector: 'app-file-upload-input',
-  standalone: true,
   imports: [
     MatCardModule,
     MatButtonModule,
@@ -80,7 +79,7 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
 
   readonly uploadTriggered = output<File[]>();
 
-  private readonly fileInputRef = viewChild<ElementRef<HTMLInputElement>>('fileInputRef');
+  private readonly fileInputRef = viewChild.required<ElementRef<HTMLInputElement>>('fileInputRef');
 
   protected readonly files = signal<File[]>([]);
   protected readonly isDragging = signal(false);
@@ -173,7 +172,7 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
       event instanceof PointerEvent ||
       (event instanceof KeyboardEvent && ['Space', 'Enter'].includes(event.code))
     ) {
-      this.fileInputRef()?.nativeElement.click();
+      this.fileInputRef().nativeElement.click();
     }
   }
 
