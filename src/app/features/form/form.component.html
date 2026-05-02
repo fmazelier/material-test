@@ -1,0 +1,50 @@
+<mat-stepper linear>
+  <mat-step [stepControl]="textControl">
+    <ng-template matStepLabel>Liste de mots</ng-template>
+
+    <app-file-upload-input
+      label="Fichier texte contenant les mots à masquer"
+      additionalInformations="Un mot par ligne — les occurrences exactes seront masquées dans le PDF"
+      accept=".txt"
+      [loading]="sendingText()"
+      showSubmitButton
+      dragDropEnabled
+      (uploadTriggered)="uploadText($event[0])"
+      [formControl]="textControl"
+    />
+  </mat-step>
+
+  <mat-step [stepControl]="pdfControl">
+    <ng-template matStepLabel>Document PDF</ng-template>
+
+    <app-file-upload-input
+      label="Fichier PDF à traiter"
+      loadingLabel="Traitement en cours..."
+      additionalInformations="Le téléchargement du PDF traité se lancera automatiquement après l'envoi"
+      accept=".pdf"
+      [loading]="sendingPdf()"
+      dragDropEnabled
+      showSubmitButton
+      (uploadTriggered)="uploadPdf($event[0])"
+      [formControl]="pdfControl"
+    />
+  </mat-step>
+
+  <mat-step>
+    <ng-template matStepLabel>Terminé</ng-template>
+    <mat-card class="flex flex-col items-center text-center gap-6 py-10 px-8 mt-4">
+      <mat-icon class="text-6xl! w-16! h-16! text-primary!">check_circle</mat-icon>
+      <div class="flex flex-col gap-2">
+        <h2 class="text-xl font-semibold">PDF traité avec succès</h2>
+        <p class="text-on-surface/60 max-w-sm">
+          Votre document a été téléchargé automatiquement. Vous pouvez traiter un nouveau fichier ou
+          revenir à l'étape précédente.
+        </p>
+      </div>
+      <div class="flex gap-3">
+        <button matButton matStepperPrevious>Changer de PDF</button>
+        <button matButton="filled" (click)="stepper().reset()">Repartir de zéro</button>
+      </div>
+    </mat-card>
+  </mat-step>
+</mat-stepper>

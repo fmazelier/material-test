@@ -7,10 +7,12 @@ import { ConfigService } from '@core/services/config.service';
 
 import { UploadPdfResponse } from '../models/form.model';
 
+import { PdfMaskingServiceAbstract } from './pdf-masking.service.interface';
+
 @Injectable({
   providedIn: 'root',
 })
-export class PdfMaskingService {
+export class PdfMaskingService implements PdfMaskingServiceAbstract {
   private readonly config = inject(ConfigService);
   private readonly http = inject(HttpClient);
   private readonly snackBar = inject(MatSnackBar);
