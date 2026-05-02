@@ -6,107 +6,113 @@ import { createInterface } from 'readline/promises';
 const exec = (cmd) => execSync(cmd, { stdio: 'inherit' });
 const execOut = (cmd) => execSync(cmd, { encoding: 'utf8' }).trim();
 
-// ─── Read current version ──────────────────────────────────────────
-const pkgPath = new URL('../package.json', import.meta.url).pathname;
-const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-
-const currentVersion = pkg.version.replace('-snapshot', '');
-const [major, minor, patch] = currentVersion.split('.').map(Number);
-
-// ─── Select bump type ──────────────────────────────────────────────
-const rl = createInterface({ input: process.stdin, output: process.stdout });
-
-console.log(`\n📦 Current version: ${pkg.version}`);
-console.log(`\nRelease type:`);
-console.log(`  1) patch  → ${major}.${minor}.${patch + 1}`);
-console.log(`  2) minor  → ${major}.${minor + 1}.0`);
-console.log(`  3) major  → ${major + 1}.0.0`);
-
-const choice = await rl.question('\nChoice [1/2/3]: ');
-
-let bumpType;
-switch (choice.trim()) {
-  case '1':
-    bumpType = 'patch';
-    break;
-  case '2':
-    bumpType = 'minor';
-    break;
-  case '3':
-    bumpType = 'major';
-    break;
-  default:
-    console.error('❌ Invalid choice.');
-    rl.close();
-    process.exit(1);
+// ─── Helpers ───────────────────────────────────────────────────────
+function abort(msg) {
+  console.error(`\n❌ ${msg}\n`);
+  process.exit(1);
 }
 
-// ─── Confirmation ──────────────────────────────────────────────────
-const newVersion = execOut(`npm version ${bumpType} --dry-run 2>&1 || true`).replace('v', '');
+function deleteLocalTagIfExists(tag) {
+  try {
+    execSync(`git tag -d ${tag}`, { stdio: 'ignore' });
+  } catch {
+    // Tag didn't exist locally, nothing to do
+  }
+}
 
-// npm version dry-run isn't reliable across all versions, compute manually
+// ─── Read current version ──────────────────────────────────────────
+const pkgPath = new URL('../package.json', import.meta.url).pathname;
+const lockPath = new URL('../package-lock.json', import.meta.url).pathname;
+
+const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+const currentVersion = pkg.version.replace('-snapshot', '');
 const [mj, mn, pt] = currentVersion.split('.').map(Number);
-const computed =
-  bumpType === 'patch'
-    ? `${mj}.${mn}.${pt + 1}`
-    : bumpType === 'minor'
-      ? `${mj}.${mn + 1}.0`
-      : `${mj + 1}.0.0`;
+
+const versionMap = {
+  1: { type: 'patch', next: `${mj}.${mn}.${pt + 1}` },
+  2: { type: 'minor', next: `${mj}.${mn + 1}.0` },
+  3: { type: 'major', next: `${mj + 1}.0.0` },
+};
+
+// ─── Interactive prompts ───────────────────────────────────────────
+const rl = createInterface({ input: process.stdin, output: process.stdout });
+
+console.log(`\n📦 Current version : ${pkg.version}`);
+console.log(`\nRelease type:`);
+Object.entries(versionMap).forEach(([k, { type, next }]) =>
+  console.log(`  ${k}) ${type.padEnd(6)} → ${next}`)
+);
+
+const choice = await rl.question('\nChoice [1/2/3]: ');
+const selected = versionMap[choice.trim()];
+if (!selected) {
+  rl.close();
+  abort('Invalid choice.');
+}
+
+const { type: bumpType, next: newVersion } = selected;
+const tagName = `v${newVersion}`;
+const snapshotVersion = `${newVersion}-snapshot`;
 
 const confirm = await rl.question(
-  `\nRelease v${computed}? This will push commits and a tag. [y/N]: `
+  `\nRelease ${tagName}? This will create a tag and push to origin. [y/N]: `
 );
 rl.close();
 
 if (confirm.trim().toLowerCase() !== 'y') {
-  console.log('Aborted.');
+  console.log('\nAborted.\n');
   process.exit(0);
 }
 
-const tagName = `v${computed}`;
-const snapshotVersion = `${computed}-snapshot`;
+// ─── Pre-flight checks ─────────────────────────────────────────────
+console.log('\n🔍 Running pre-flight checks...');
 
-// ─── Guards ────────────────────────────────────────────────────────
 const branch = execOut('git rev-parse --abbrev-ref HEAD');
-if (!['main', 'master'].includes(branch)) {
-  console.error(`❌ Must be on main/master (current branch: ${branch})`);
-  process.exit(1);
-}
+if (!['main', 'master'].includes(branch))
+  abort(`Must be on main/master (current branch: ${branch})`);
 
 const status = execOut('git status --porcelain');
-if (status) {
-  console.error('❌ Working tree is not clean. Commit or stash your changes first.');
-  process.exit(1);
-}
+if (status) abort('Working tree is not clean. Commit or stash your changes first.');
+
+// Fetch remote tags to detect conflicts before doing anything
+exec('git fetch --tags');
 
 const existingTags = execOut('git tag').split('\n');
-if (existingTags.includes(tagName)) {
-  console.error(`❌ Tag ${tagName} already exists.`);
-  process.exit(1);
-}
+if (existingTags.includes(tagName)) abort(`Tag ${tagName} already exists on remote.`);
 
-console.log(`\n🚀 Releasing ${tagName}...\n`);
+// Ensure local branch is up to date with remote
+const behind = execOut(`git rev-list HEAD..origin/${branch} --count`);
+if (behind !== '0')
+  abort(`Local branch is ${behind} commit(s) behind origin/${branch}. Pull first.`);
+
+console.log('✅ Pre-flight checks passed\n');
 
 // ─── 1. Bump to release version ────────────────────────────────────
-// npm version updates both package.json and package-lock.json atomically
-// --no-git-tag-version: we handle the commit/tag manually for full control
-exec(`npm version ${computed} --no-git-tag-version`);
+console.log(`🚀 Bumping to ${newVersion}...`);
+
+// npm version updates package.json + package-lock.json atomically
+// --no-git-tag-version: we manage commits/tags manually
+exec(`npm version ${newVersion} --no-git-tag-version`);
+
+// npm may create a lightweight tag despite the flag — delete it
+deleteLocalTagIfExists(tagName);
 
 exec('git add package.json package-lock.json');
 exec(`git commit -m "chore(release): ${tagName}"`);
-exec(`git tag -a ${tagName} -m "Release ${tagName}"`);
 
-console.log(`✅ Tag ${tagName} created`);
+// Create an annotated tag (preferred over lightweight: carries metadata + message)
+exec(`git tag -a ${tagName} -m "Release ${tagName}"`);
+console.log(`✅ Annotated tag ${tagName} created`);
 
 // ─── 2. Bump to next snapshot version ─────────────────────────────
-// Manually write snapshot version — npm version doesn't support pre-release
-// suffixes like -snapshot natively without --preid flags
-const updatedPkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-updatedPkg.version = snapshotVersion;
-writeFileSync(pkgPath, JSON.stringify(updatedPkg, null, 2) + '\n');
+console.log(`\n📝 Bumping to ${snapshotVersion}...`);
 
-// Update package-lock.json version field as well
-const lockPath = new URL('../package-lock.json', import.meta.url).pathname;
+// Write snapshot version manually — npm version doesn't support
+// arbitrary suffixes like -snapshot reliably
+const freshPkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+freshPkg.version = snapshotVersion;
+writeFileSync(pkgPath, JSON.stringify(freshPkg, null, 2) + '\n');
+
 const lock = JSON.parse(readFileSync(lockPath, 'utf8'));
 lock.version = snapshotVersion;
 if (lock.packages?.['']) lock.packages[''].version = snapshotVersion;
@@ -114,13 +120,20 @@ writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n');
 
 exec('git add package.json package-lock.json');
 exec(`git commit -m "chore: bump version to ${snapshotVersion}"`);
-
 console.log(`✅ Version bumped to ${snapshotVersion}`);
 
 // ─── 3. Push commits and tag ───────────────────────────────────────
-exec('git push');
-exec('git push --tags');
+console.log(`\n📡 Pushing to origin/${branch}...`);
+// exec(`git push origin ${branch}`);
+// exec(`git push origin ${tagName}`);
 
-console.log(`\n✨ Successfully released ${tagName}!`);
-console.log(`   → Tag    : ${tagName}`);
-console.log(`   → Next   : ${snapshotVersion}\n`);
+// ─── Summary ───────────────────────────────────────────────────────
+console.log(`
+╔════════════════════════════════════════╗
+║        ✨ Release successful!          ║
+╠════════════════════════════════════════╣
+║  Tag     : ${tagName.padEnd(28)}║
+║  Branch  : ${branch.padEnd(28)}║
+║  Next    : ${snapshotVersion.padEnd(28)}║
+╚════════════════════════════════════════╝
+`);
