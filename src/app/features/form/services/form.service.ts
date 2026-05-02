@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
 import { ConfigService } from '@core/services/config.service';
+import { SnackbarService } from '@shared/services/snackbar.service';
 
 import { UploadPdfResponse } from '../models/form.model';
 
@@ -15,7 +15,7 @@ import { PdfMaskingServiceAbstract } from './pdf-masking.service.interface';
 export class PdfMaskingService implements PdfMaskingServiceAbstract {
   private readonly config = inject(ConfigService);
   private readonly http = inject(HttpClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly snackbarService = inject(SnackbarService);
 
   uploadTextFile(file: File): Observable<unknown> {
     const formData = new FormData();
@@ -23,7 +23,7 @@ export class PdfMaskingService implements PdfMaskingServiceAbstract {
 
     return this.http.post<unknown>(`${this.config.apiUrl}/anos/upload-variants`, formData).pipe(
       catchError((err) => {
-        this.snackBar.open(
+        this.snackbarService.error(
           "Une erreur est survenue lors de l'envoi du fichier texte. Veuillez réessayer"
         );
         return throwError(() => err);
@@ -37,7 +37,9 @@ export class PdfMaskingService implements PdfMaskingServiceAbstract {
 
     return this.http.post<UploadPdfResponse>(`${this.config.apiUrl}/anos/upload`, formData).pipe(
       catchError((err) => {
-        this.snackBar.open("Une erreur est survenue lors de l'envoi du PDF. Veuillez réessayer.");
+        this.snackbarService.error(
+          "Une erreur est survenue lors de l'envoi du PDF. Veuillez réessayer"
+        );
         return throwError(() => err);
       })
     );
@@ -51,7 +53,9 @@ export class PdfMaskingService implements PdfMaskingServiceAbstract {
       .pipe(
         tap((blob) => this.triggerDownload(blob, fileName)),
         catchError((err) => {
-          this.snackBar.open('Une erreur est survenue lors du téléchargement du PDF masqué');
+          this.snackbarService.error(
+            'Une erreur est survenue lors de la récupération du PDF masqué. Veuillez réessayer'
+          );
           return throwError(() => err);
         })
       );

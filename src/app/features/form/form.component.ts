@@ -1,21 +1,23 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   inject,
+  Signal,
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatStepper, MatStepperModule } from '@angular/material/stepper';
-import { finalize, switchMap } from 'rxjs';
+import { MatStepper, MatStepperModule, StepperOrientation } from '@angular/material/stepper';
+import { finalize, map, switchMap } from 'rxjs';
 
 import { FileUploadInputComponent } from '@shared/components/file-upload-input/file-upload-input.component';
+import { SnackbarService } from '@shared/services/snackbar.service';
 
 import { PdfMaskingService } from './services/form.service';
 import { PdfMaskingMockService } from './services/pdf-masking.mock.service';
@@ -32,10 +34,9 @@ import { PdfMaskingMockService } from './services/pdf-masking.mock.service';
   ],
   templateUrl: './form.component.html',
   styles: `
-    @use '@angular/material' as mat;
-
-    :host::ng-deep .mat-horizontal-content-container {
-      margin-top: 16px;
+    :host::ng-deep .mat-horizontal-content-container,
+    :host::ng-deep .mat-vertical-content-container {
+      margin-top: 8px;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,18 +45,33 @@ import { PdfMaskingMockService } from './services/pdf-masking.mock.service';
 export default class PdfMaskingFormComponent {
   private readonly pdfMaskingService = inject(PdfMaskingService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly snackbarService = inject(SnackbarService);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
   protected readonly stepper = viewChild.required(MatStepper);
+
+  protected readonly stepperOrientation: Signal<StepperOrientation> = toSignal(
+    this.breakpointObserver
+      .observe('(min-width: 800px)')
+      .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical'))),
+    { initialValue: 'horizontal' }
+  );
+
+  protected readonly textControl = new FormControl<File[]>([], {
+    validators: Validators.required,
+    nonNullable: true,
+  });
+  protected readonly pdfControl = new FormControl<File[]>([], {
+    validators: Validators.required,
+    nonNullable: true,
+  });
 
   protected readonly sendingText = signal(false);
   protected readonly sendingPdf = signal(false);
 
-  protected readonly textControl = new FormControl<File[]>([], Validators.required);
-  protected readonly pdfControl = new FormControl<File[]>([], Validators.required);
-
   uploadText(file: File): void {
     this.sendingText.set(true);
+
     this.pdfMaskingService
       .uploadTextFile(file)
       .pipe(
@@ -63,7 +79,7 @@ export default class PdfMaskingFormComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
-        this.snackBar.open('Fichier texte reçu avec succès');
+        this.snackbarService.success('Fichier texte reçu avec succès');
         this.stepper().next();
       });
   }

@@ -1,4 +1,4 @@
-<mat-stepper linear>
+<mat-stepper linear [orientation]="stepperOrientation()">
   <mat-step [stepControl]="textControl">
     <ng-template matStepLabel>Liste de mots</ng-template>
 
