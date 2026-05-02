@@ -20,7 +20,6 @@ import { FileUploadInputComponent } from '@shared/components/file-upload-input/f
 import { SnackbarService } from '@shared/services/snackbar.service';
 
 import { PdfMaskingService } from './services/form.service';
-import { PdfMaskingMockService } from './services/pdf-masking.mock.service';
 
 @Component({
   selector: 'app-pdf-masking-form',
@@ -40,7 +39,7 @@ import { PdfMaskingMockService } from './services/pdf-masking.mock.service';
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: PdfMaskingService, useClass: PdfMaskingMockService }],
+  // providers: [{ provide: PdfMaskingService, useClass: PdfMaskingMockService }],
 })
 export default class PdfMaskingFormComponent {
   private readonly pdfMaskingService = inject(PdfMaskingService);
