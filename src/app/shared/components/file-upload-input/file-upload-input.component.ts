@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   forwardRef,
   input,
@@ -34,6 +35,15 @@ type FileUploadError = {
 type FileProcessingResult = {
   valid: File[];
   errors: FileUploadError[];
+};
+
+// form control errors
+export type FileUploadValidationErrors = {
+  maxFilesReached?: boolean;
+  fileTooLarge?: boolean;
+  fileTypeNotAllowed?: boolean;
+  duplicateFile?: boolean;
+  notSubmitted?: boolean;
 };
 
 export const BYTES_PER_KB = 1_024;
@@ -107,6 +117,22 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
     return label.join(' - ');
   });
 
+  // Tracks whether files have been selected but not yet submitted.
+  // Only relevant when showSubmitButton is true (independent submit flow).
+  private readonly pendingSubmit = signal(false);
+
+  constructor() {
+    // Re-runs whenever files change. Sets pendingSubmit only in independent
+    // submit mode, forcing the user to explicitly trigger upload().
+    effect(() => {
+      this.files();
+
+      if (this.showSubmitButton()) {
+        this.pendingSubmit.set(true);
+      }
+    });
+  }
+
   private onChange: (value: File[]) => void = () => {};
   private onTouched: () => void = () => {};
 
@@ -128,10 +154,17 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
 
   /** Exposes validation errors to Angular forms */
   validate(): ValidationErrors | null {
-    if (this.uploadErrors().length > 0) {
-      return { fileUpload: { errors: this.uploadErrors() } };
+    const errors: FileUploadValidationErrors = {};
+
+    if (this.pendingSubmit() && this.showSubmitButton()) {
+      errors.notSubmitted = true;
     }
-    return null;
+
+    for (const err of this.uploadErrors()) {
+      errors[err.type] = true;
+    }
+
+    return Object.keys(errors).length > 0 ? errors : null;
   }
 
   onDragOver(event: DragEvent): void {
@@ -180,6 +213,7 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
   upload(): void {
     this.onTouched();
     if (this.showSubmitButton() && !this.loading()) {
+      this.pendingSubmit.set(false);
       this.uploadTriggered.emit(this.files());
     }
   }
@@ -188,6 +222,7 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
   cancelAll(): void {
     this.files.set([]);
     this.uploadErrors.set([]);
+    this.pendingSubmit.set(false);
     this.onChange([]);
     this.onTouched();
   }
