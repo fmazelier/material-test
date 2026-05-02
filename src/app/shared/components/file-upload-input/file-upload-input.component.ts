@@ -211,11 +211,13 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
 
   /** Emits files if submit button is enabled */
   upload(): void {
-    this.onTouched();
     if (this.showSubmitButton() && !this.loading()) {
+      const files = this.files();
       this.pendingSubmit.set(false);
-      this.uploadTriggered.emit(this.files());
+      this.onChange(files);
+      this.uploadTriggered.emit(files);
     }
+    this.onTouched();
   }
 
   /** Clears all files and errors */

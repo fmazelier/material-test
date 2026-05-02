@@ -27,7 +27,7 @@ export class SnackbarService {
   }
 
   error(title: string, message?: string): void {
-    this.open('error', title, message, { duration: 0 });
+    this.open('error', title, message, { duration: 6000 });
   }
 
   warning(title: string, message?: string): void {

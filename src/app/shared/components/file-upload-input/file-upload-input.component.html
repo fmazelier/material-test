@@ -166,9 +166,9 @@
 
     <!-- Empty state -->
     @if (files().length === 0 && uploadErrors().length === 0) {
-      <div class="empty-state flex items-center gap-2 pt-4 pb-2 text-color-surface-variant text-s">
-        <mat-icon class="opacity-60">inbox</mat-icon>
-        <span>Aucun fichier sélectionné</span>
+      <div class="empty-state flex items-center gap-2 pt-4 pb-2 text-s">
+        <mat-icon class="text-color-surface-variant">inbox</mat-icon>
+        <span class="text-on-surface/70">Aucun fichier sélectionné</span>
       </div>
     }
   </mat-card-content>
