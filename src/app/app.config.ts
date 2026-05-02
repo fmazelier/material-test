@@ -9,7 +9,6 @@ import {
   provideEnvironmentInitializer,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import {
   PreloadAllModules,
   provideRouter,
@@ -40,13 +39,5 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: TitleStrategy, useClass: CustomTitleStrategyService },
     { provide: LOCALE_ID, useValue: 'fr-FR' },
-    {
-      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-      useValue: {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-      },
-    },
   ],
 };

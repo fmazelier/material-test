@@ -1,0 +1,130 @@
+@use '@angular/material' as mat;
+@use 'sass:map';
+
+@mixin snack-variant($light, $dark) {
+  // Light mode — lighter background, strong text
+  @include mat.snack-bar-overrides(
+    (
+      container-color: color-mix(in srgb, #{map.get($light, 'base')} 15%, transparent),
+      supporting-text-color: map.get($light, 'text'),
+      button-color: map.get($light, 'action'),
+    )
+  );
+  @include mat.icon-button-overrides(
+    (
+      icon-color: map.get($light, 'text'),
+    )
+  );
+
+  .snackbar-icon {
+    color: map.get($light, 'text');
+  }
+
+  &.mat-mdc-snack-bar-container {
+    border: 1px solid color-mix(in srgb, #{map.get($light, 'base')} 30%, transparent);
+    border-radius: calc(var(--mat-sys-corner-extra-small) + 1px);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+  }
+
+  // Dark mode — stronger background, lighter text
+  html.dark & {
+    @include mat.snack-bar-overrides(
+      (
+        container-color: color-mix(in srgb, #{map.get($dark, 'base')} 60%, transparent),
+        supporting-text-color: map.get($dark, 'text'),
+        button-color: map.get($dark, 'action'),
+      )
+    );
+    @include mat.icon-button-overrides(
+      (
+        icon-color: map.get($dark, 'text'),
+      )
+    );
+
+    .snackbar-icon {
+      color: map.get($dark, 'text');
+    }
+
+    &.mat-mdc-snack-bar-container {
+      backdrop-filter: blur(4px);
+      border-color: color-mix(in srgb, #{map.get($dark, 'base')} 60%, transparent);
+    }
+  }
+}
+
+$snack-variants: (
+  'success': (
+    'light': (
+      'base': var(--color-green-600),
+      'text': var(--color-green-800),
+      'action': var(--color-green-700),
+    ),
+    'dark': (
+      'base': var(--color-green-800),
+      'text': var(--color-green-300),
+      'action': var(--color-green-300),
+    ),
+  ),
+  'error': (
+    'light': (
+      'base': var(--color-red-500),
+      'text': var(--color-red-800),
+      'action': var(--color-red-700),
+    ),
+    'dark': (
+      'base': var(--color-red-800),
+      'text': var(--color-red-300),
+      'action': var(--color-red-300),
+    ),
+  ),
+  'warning': (
+    'light': (
+      'base': var(--color-yellow-400),
+      'text': var(--color-yellow-800),
+      'action': var(--color-yellow-900),
+    ),
+    'dark': (
+      'base': var(--color-yellow-500),
+      'text': var(--color-yellow-200),
+      'action': var(--color-yellow-900),
+    ),
+  ),
+  'info': (
+    'light': (
+      'base': var(--color-blue-500),
+      'text': var(--color-blue-900),
+      'action': var(--color-blue-800),
+    ),
+    'dark': (
+      'base': var(--color-blue-900),
+      'text': var(--color-blue-300),
+      'action': var(--color-blue-300),
+    ),
+  ),
+);
+
+// generate each toast variant
+@each $type, $variants in $snack-variants {
+  .snack-#{$type} {
+    @include snack-variant(map.get($variants, 'light'), map.get($variants, 'dark'));
+  }
+}
+
+.snack-progress-bar {
+  background: currentcolor;
+  opacity: 0.6;
+  animation: progress linear forwards;
+  transform-origin: left;
+  animation-duration: var(--snack-duration, 3000ms);
+}
+
+@keyframes progress {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
