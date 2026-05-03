@@ -1,3 +1,12 @@
+/public
+  config.json
+  favicon.ico
+  lottie-animations (contient toutes les animations lottie)
+    pdf.json
+/scripts (scripts custom)
+  entrypoint.sh
+  generate-tailwind-snippets.mjs
+  release.mjs
 /src
   /app
     /core
@@ -29,3 +38,29 @@
         /components
         /services
         /models
+  /styles (styles globaux)
+    global (animations etc..)
+    theme (theme angular material / tailwind css)
+  /types (type custom)
+    lottie-web-svg.d.ts
+
+
+      /orders
+        /pages
+          /panier
+            /components
+            /services
+            /models
+            /pages
+              /panier-confirmation
+                /components
+                /services
+                /models
+                /pages
+        /components
+        /services
+        /models
+
+
+
+        $$2a$$12$$JTa/J9.ZQa9KAD2nx8UXV.p4BLcVtD.I.IjtWbjaMp6Ii6oRGvhlq
