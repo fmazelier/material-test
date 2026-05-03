@@ -1,0 +1,31 @@
+/src
+  /app
+    /core
+      /services
+      /interceptors
+      /guards
+      /config
+
+    /shared
+      /ui
+      /directives
+      /pipes
+      /utils
+      /models
+
+    /layout
+      /header
+      /sidebar
+
+    /features
+      /users
+        /pages
+        /components
+        /services
+        /models
+
+      /orders
+        /pages
+        /components
+        /services
+        /models

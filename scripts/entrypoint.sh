@@ -16,10 +16,16 @@ if [ ! -f "$CONFIG_PATH" ]; then
   exit 1
 fi
 
-# ─── Inject deployedAt only if currently null ─────────────────────
-# Avoids overwriting the date on container restart
-CURRENT=$(grep '"deployedAt"' "$CONFIG_PATH" || echo "")
+# ─── Inject API_URL if provided ───────────────────────────────────
+if [ -n "$API_URL" ]; then
+  sed -i "s|\"apiUrl\":.*|\"apiUrl\": \"${API_URL}\"|" "$CONFIG_PATH"
+  echo "✅ apiUrl injected: ${API_URL}"
+else
+  echo "ℹ️  API_URL not set — keeping apiUrl from config.json"
+fi
 
+# ─── Inject deployedAt only if currently null ─────────────────────
+CURRENT=$(grep '"deployedAt"' "$CONFIG_PATH" || echo "")
 if echo "$CURRENT" | grep -q "null"; then
   DEPLOYED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   sed -i "s|\"deployedAt\": null|\"deployedAt\": \"${DEPLOYED_AT}\"|" "$CONFIG_PATH"
@@ -32,5 +38,5 @@ fi
 cp -r /app/dist/${APP_NAME}/browser/. /usr/share/nginx/html/${APP_NAME}/
 
 # ─── Hand off to nginx ─────────────────────────────────────────────
-echo "  🌐 Starting nginx...\n"
+echo "  🌐 Starting nginx..."
 exec nginx -g "daemon off;"

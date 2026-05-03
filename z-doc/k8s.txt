@@ -1,0 +1,23 @@
+pattern 12-factor app
+
+Utilisation
+Docker local / CapRover
+docker run -e API_URL=https://api.monapp.com my-app
+
+
+Kubernetes —  deployment.yaml :
+
+env:
+  - name: API_URL
+    valueFrom:
+      secretKeyRef:         # ou configMapKeyRef selon le niveau de sensibilité
+        name: app-config
+        key: api-url
+
+Kubernetes —  deployment.yaml 
+apiVersion: v1
+kind: ConfigMap
+meta
+  name: app-config
+
+  api-url: "https://api.staging.monapp.com"
