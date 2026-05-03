@@ -9,6 +9,21 @@ RUN npm ci --prefer-offline
 # Copy source files
 COPY . .
 
+# Inject deployedAt into config.json right before the Angular build
+# Fails the build explicitly if config.json is missing
+RUN node -e " \
+  const fs = require('fs'); \
+  const path = 'public/config.json'; \
+  if (!fs.existsSync(path)) { \
+    console.error('❌ config.json not found at ' + path + ' — aborting build.'); \
+    process.exit(1); \
+  } \
+  const config = JSON.parse(fs.readFileSync(path, 'utf8')); \
+  config.deployedAt = new Date().toISOString(); \
+  fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n'); \
+  console.log('✅ config.json patched:', JSON.stringify(config)); \
+"
+
 RUN npm run build
 
 # ─── Stage 2 : Serve ───────────────────────────────────────────────
