@@ -1,3 +1,5 @@
 {
-  "apiUrl": "https://toto.com"
+  "apiUrl": "https://toto.com",
+  "version": "0.0.0",
+  "deployedAt": null
 }
