@@ -14,8 +14,10 @@ function abort(msg) {
 
 function deleteLocalTagIfExists(tag) {
   try {
+    console.info(`Checking for existing local tag ${tag}...`);
     execSync(`git tag -d ${tag}`, { stdio: 'ignore' });
   } catch {
+    console.info(`Tag ${tag} does not exist locally, skipping deletion.`);
     // Tag didn't exist locally, nothing to do
   }
 }
