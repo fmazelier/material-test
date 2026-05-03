@@ -1,0 +1,100 @@
+/*
+  This file exists ONLY to activate M3 / mat-sys CSS vars IntelliSense in VS Code.
+  It is NOT included in the build.
+*/
+
+:root {
+  /* Primary */
+  --mat-sys-primary: initial;
+  --mat-sys-on-primary: initial;
+  --mat-sys-primary-container: initial;
+  --mat-sys-on-primary-container: initial;
+  --mat-sys-primary-fixed: initial;
+  --mat-sys-primary-fixed-dim: initial;
+  --mat-sys-on-primary-fixed: initial;
+  --mat-sys-on-primary-fixed-variant: initial;
+
+  /* Secondary */
+  --mat-sys-secondary: initial;
+  --mat-sys-on-secondary: initial;
+  --mat-sys-secondary-container: initial;
+  --mat-sys-on-secondary-container: initial;
+
+  /* Tertiary */
+  --mat-sys-tertiary: initial;
+  --mat-sys-on-tertiary: initial;
+  --mat-sys-tertiary-container: initial;
+  --mat-sys-on-tertiary-container: initial;
+
+  /* Error */
+  --mat-sys-error: initial;
+  --mat-sys-on-error: initial;
+  --mat-sys-error-container: initial;
+  --mat-sys-on-error-container: initial;
+
+  /* Surface */
+  --mat-sys-surface: initial;
+  --mat-sys-on-surface: initial;
+  --mat-sys-surface-variant: initial;
+  --mat-sys-on-surface-variant: initial;
+  --mat-sys-surface-dim: initial;
+  --mat-sys-surface-bright: initial;
+  --mat-sys-surface-container-lowest: initial;
+  --mat-sys-surface-container-low: initial;
+  --mat-sys-surface-container: initial;
+  --mat-sys-surface-container-high: initial;
+  --mat-sys-surface-container-highest: initial;
+  --mat-sys-inverse-surface: initial;
+  --mat-sys-inverse-on-surface: initial;
+  --mat-sys-inverse-primary: initial;
+
+  /* Background */
+  --mat-sys-background: initial;
+  --mat-sys-on-background: initial;
+
+  /* Outline */
+  --mat-sys-outline: initial;
+  --mat-sys-outline-variant: initial;
+
+  /* Misc */
+  --mat-sys-shadow: initial;
+  --mat-sys-scrim: initial;
+
+  /* Typography */
+  --mat-sys-body-large: initial;
+  --mat-sys-body-medium: initial;
+  --mat-sys-body-small: initial;
+  --mat-sys-display-large: initial;
+  --mat-sys-display-medium: initial;
+  --mat-sys-display-small: initial;
+  --mat-sys-headline-large: initial;
+  --mat-sys-headline-medium: initial;
+  --mat-sys-headline-small: initial;
+  --mat-sys-label-large: initial;
+  --mat-sys-label-medium: initial;
+  --mat-sys-label-small: initial;
+  --mat-sys-title-large: initial;
+  --mat-sys-title-medium: initial;
+  --mat-sys-title-small: initial;
+
+  /* Shape */
+  --mat-sys-corner-extra-large: initial;
+  --mat-sys-corner-extra-large-top: initial;
+  --mat-sys-corner-extra-small: initial;
+  --mat-sys-corner-extra-small-top: initial;
+  --mat-sys-corner-full: initial;
+  --mat-sys-corner-large: initial;
+  --mat-sys-corner-large-end: initial;
+  --mat-sys-corner-large-top: initial;
+  --mat-sys-corner-medium: initial;
+  --mat-sys-corner-none: initial;
+  --mat-sys-corner-small: initial;
+
+  /* Elevation */
+  --mat-sys-level0: initial;
+  --mat-sys-level1: initial;
+  --mat-sys-level2: initial;
+  --mat-sys-level3: initial;
+  --mat-sys-level4: initial;
+  --mat-sys-level5: initial;
+}
