@@ -6,11 +6,12 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --prefer-offline
 
-# Copy source files
 COPY . .
 
-# Inject deployedAt into config.json right before the Angular build
-# Fails the build explicitly if config.json is missing
+# Read app name from package.json and write it to a file for stage 2
+RUN node -e "const p = require('./package.json'); require('fs').writeFileSync('.app-name', p.name);"
+
+# Guard + reset deployedAt before build
 RUN node -e " \
   const fs = require('fs'); \
   const path = 'public/config.json'; \
@@ -19,9 +20,9 @@ RUN node -e " \
     process.exit(1); \
   } \
   const config = JSON.parse(fs.readFileSync(path, 'utf8')); \
-  config.deployedAt = new Date().toISOString(); \
+  config.deployedAt = null; \
   fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n'); \
-  console.log('✅ config.json patched:', JSON.stringify(config)); \
+  console.log('✅ config.json ready:', JSON.stringify(config)); \
 "
 
 RUN npm run build
@@ -29,16 +30,17 @@ RUN npm run build
 # ─── Stage 2 : Serve ───────────────────────────────────────────────
 FROM nginx:alpine AS runner
 
-# Delete default nginx config
 RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 
-# Copy custom nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the Angular build (adapt "material-test" to the name in angular.json)
-COPY --from=builder /app/dist/material-test/browser /usr/share/nginx/html/material-test
+# Copy app name file and the full dist folder
+COPY --from=builder /app/.app-name /etc/app-name
+COPY --from=builder /app/dist /app/dist
+
+COPY scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
-
+CMD ["/entrypoint.sh"]
