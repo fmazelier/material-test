@@ -1,9 +1,16 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -35,6 +42,11 @@ type NavLink = {
 export class NavbarComponent {
   private readonly media = inject(MediaMatcher);
   protected readonly themeService = inject(ThemeService);
+
+  sidenav = viewChild.required(MatSidenav);
+
+  collapsed = signal(false);
+  sidebarWidth = computed(() => (this.collapsed() ? '58px' : '250px'));
 
   protected readonly isMobile = signal(true);
 
