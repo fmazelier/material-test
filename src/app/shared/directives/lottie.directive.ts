@@ -1,10 +1,7 @@
 import { Directive, effect, ElementRef, inject, input, OnDestroy, output } from '@angular/core';
 
-import lottie, {
-  AnimationConfigWithData,
-  AnimationConfigWithPath,
-  AnimationItem,
-} from 'lottie-web';
+import type { AnimationConfigWithData, AnimationConfigWithPath, AnimationItem } from 'lottie-web';
+import lottie from 'lottie-web/build/player/esm/lottie_svg.min.js';
 
 export type LottieOptions = Partial<AnimationConfigWithPath | AnimationConfigWithData>;
 
