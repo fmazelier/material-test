@@ -55,7 +55,7 @@ Merge
 
 Depuis le work item GitLab, utiliser le bouton **"Create merge request"** :
 
-- GitLab crée automatiquement une **branche nommée d'après le titre du work item** (ex: `42-fix-panier-total-calcul`).
+- GitLab crée automatiquement une **branche nommée d'après le titre du work item** (ex: `43-fix-form-error`).
 - La MR est automatiquement placée en **Draft**, ce qui empêche un merge accidentel tant que le travail n'est pas terminé.
 - La MR est liée au work item : le work item sera fermé automatiquement au merge.
 
@@ -152,60 +152,126 @@ Une fois le développement terminé et le pipeline vert :
 
 ## Structure des features
 
-Toute nouvelle feature doit respecter l'organisation suivante :
+Lorsqu’une feature ne contient qu’une seule page routée, elle doit être mise à plat afin d’éviter une arborescence et des noms redondants.
+
+### Structure recommandée pour une feature ne contenant qu'une seule page
 
 ```
 /features
   /ma-feature
-    ma-feature.routes.ts          # Routes lazy-loadées, déclarées ici
+    ma-feature.routes.ts      # Routes lazy-loadées de la feature
+    ma-feature.component.ts   # Page routée principale (standalone)
+    /components               # Composants utilisés UNIQUEMENT par cette feature
+    /services                 # Services propres à la feature
+    /models                   # Types propres à la feature
+```
+
+✅ Dans ce cas :
+
+- Il n’y a pas de dossier /pages
+- Le composant de page principale est directement à la racine de la feature
+
+### Structure recommandée pour une feature contenant plusieurs pages
+
+Si une feature comporte plusieurs pages routées (ou est amenée à évoluer), elle doit adopter la structure suivante :
+
+```
+/features
+  /ma-feature
+    ma-feature.routes.ts      # Routes lazy-loadées, déclarées ici
     /pages
-      /ma-page                    # Un dossier par page routée
-        ma-page.ts
-        /components               # Composants utilisés UNIQUEMENT par cette page
-      /ma-sous-page               # Sous-route au même niveau (pas imbriquée dans /ma-page)
-        ma-sous-page.ts
+      /ma-page                # Un dossier par page routée
+        ma-page.component.ts
+        /components           # Composants utilisés UNIQUEMENT par cette page
+      /ma-sous-page           # Sous-route (au même niveau)
+        ma-sous-page.component.ts
         /components
-    /components                   # Composants partagés entre plusieurs pages de la feature
-    /services                     # Services propres à la feature
-    /models                       # Interfaces et types du domaine
+    /components               # Composants partagés entre plusieurs pages de la feature
+    /services                 # Services propres à la feature
+    /models                   # Types de la feature
 ```
 
 ### Règles clés
 
-- **Les pages sœurs restent au même niveau** dans `/pages`. La hiérarchie parent/enfant est définie dans `ma-feature.routes.ts` via `children[]`, pas par l'imbrication des dossiers.
-- Un composant va dans **`/pages/ma-page/components/`** s'il n'est utilisé que par cette page, dans **`/features/ma-feature/components/`** s'il est partagé entre plusieurs pages de la feature, et dans **`/shared/ui/`** s'il est réutilisable dans n'importe quelle feature.
-- **`shared/ui/`** est réservé aux composants strictement présentationnels — aucun import de service métier n'est autorisé.
+- ✅ **Une feature mono‑page doit être mise à plat** (pas de /pages inutile).
+- ✅ **Une feature ne doit pas porter le même nom qu’une page si elle devient multi‑pages**.
+- ✅ Les pages sœurs restent au même niveau dans `/pages`.
+  <br>
+  La hiérarchie parent/enfant est définie uniquement dans `ma-feature.routes.ts` via `children[]`, jamais par l’imbrication de dossiers.
+- ✅ Un composant va :
+  - dans `/features/ma-feature/components/` s’il est partagé au sein de la feature
+  - dans `/features/ma-feature/pages/ma-page/components/` s’il est spécifique à une page
+  - dans `/shared/components/` s’il est réutilisable dans plusieurs features
+- ✅ `/shared/components` est réservé aux composants purement présentationnels
+  - ⚠️ aucun import de service métier n’y est autorisé.
+
+### Règle d’évolution importante
+
+🔁 Une feature peut évoluer de “mono‑page” vers “multi‑pages”
+
+Dans ce cas, il est attendu de :
+
+- créer le dossier /pages
+- déplacer la page existante dedans
+- ajuster le routing en conséquence
 
 ### Exemple de fichier de routes
 
+Angular permet d’utiliser des imports dynamiques sans .then(...) à condition que les composants (ou les routes) soient exportés via un export default.
+Cette approche rend le routing plus lisible et plus concis.
+
 ```typescript
-// orders.routes.ts
 import { Routes } from '@angular/router';
 
-export const ORDERS_ROUTES: Routes = [
+const featureRoutes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/panier/panier').then((m) => m.PanierPage),
+    loadComponent: () => import('./pages/ma-page/ma-page.component'),
     children: [
       {
-        path: 'confirmation',
-        loadComponent: () =>
-          import('./pages/panier-confirmation/panier-confirmation').then(
-            (m) => m.PanierConfirmationPage
-          ),
+        path: 'ma-sous-page',
+        loadComponent: () => import('./pages/ma-sous-page/ma-sous-page.component'),
       },
     ],
   },
 ];
+
+export default featureRoutes;
 ```
 
 Et dans `app.routes.ts` :
 
 ```typescript
+import { Routes } from '@angular/router';
+
 export const APP_ROUTES: Routes = [
   {
-    path: 'orders',
-    loadChildren: () => import('./features/orders/orders.routes').then((m) => m.ORDERS_ROUTES),
+    path: 'ma-feature',
+    loadChildren: () => import('./features/ma-feature/ma-feature.routes'),
   },
 ];
 ```
+
+#### ⚠️ Point important
+
+Pour que cette syntaxe fonctionne correctement :
+
+- Les composants chargés avec loadComponent doivent être exportés avec export default
+- Les fichiers de routes chargés avec loadChildren doivent également utiliser export default
+
+#### Exemple de composant
+
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  templateUrl: './ma-feature.html',
+})
+export default class MaFeatureComponent {}
+```
+
+#### ✅ Avantages :
+
+- Syntaxe plus courte et plus lisible
+- Moins de boilerplate => plus besoin d'ajouter `.then(m => m.X)`
+- Aligné avec le lazy loading moderne proposé par Angular
