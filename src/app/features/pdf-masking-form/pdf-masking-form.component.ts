@@ -31,7 +31,7 @@ import { PdfMaskingService } from './services/form.service';
     MatCardModule,
     MatIconModule,
   ],
-  templateUrl: './form.component.html',
+  templateUrl: './pdf-masking-form.component.html',
   styles: `
     :host::ng-deep .mat-horizontal-content-container,
     :host::ng-deep .mat-vertical-content-container {

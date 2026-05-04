@@ -3,16 +3,16 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'landing-page',
     pathMatch: 'full',
   },
   {
-    path: 'home',
-    loadComponent: () => import('./features/landing-page/landing-page.component'),
+    path: 'landing-page',
+    loadChildren: () => import('./features/landing-page/landing-page.routes'),
   },
   {
     path: 'pdf-masking-form',
-    loadComponent: () => import('./features/form/form.component'),
+    loadChildren: () => import('./features/pdf-masking-form/pdf-masking-form.routes'),
     title: 'formulaire',
   },
 ];
