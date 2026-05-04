@@ -27,8 +27,33 @@ const SNACKBAR_ICONS: Record<SnackbarType, string> = {
     MatSnackBarActions,
     MatSnackBarAction,
   ],
-  templateUrl: './snackbar.component.html',
-  styleUrl: './snackbar.component.scss',
+  template: `
+    <div class="flex flex-col w-full relative pl-2 pb-3 pt-2.5">
+      <div class="flex items-center h-6.5">
+        <div matSnackBarLabel class="flex items-center gap-2 px-2! py-0!">
+          <mat-icon class="snackbar-icon">{{ icon }}</mat-icon>
+          <span>{{ data.title }}</span>
+        </div>
+        <div matSnackBarActions>
+          <button matSnackBarAction matIconButton (click)="ref.dismissWithAction()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      @if (data.message) {
+        <div class="px-10 text-on-surface whitespace-pre-line">{{ data.message }}</div>
+      }
+
+      @if (data.duration && data.duration > 0) {
+        <div
+          class="absolute bottom-0 left-0 h-1 w-full snack-progress-bar"
+          [attr.data-duration]="data.duration"
+        ></div>
+      }
+    </div>
+  `,
+  styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SnackbarComponent {

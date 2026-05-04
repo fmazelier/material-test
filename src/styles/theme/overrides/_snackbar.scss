@@ -116,7 +116,7 @@ $snack-variants: (
   opacity: 0.6;
   animation: progress linear forwards;
   transform-origin: left;
-  animation-duration: var(--snack-duration, 3000ms);
+  animation-duration: attr(data-duration ms);
 }
 
 @keyframes progress {
