@@ -1,7 +1,6 @@
-<!-- eslint-disable @angular-eslint/template/no-inline-styles -->
 <div class="flex flex-col absolute inset-0">
   <mat-toolbar class="w-full">
-    <button matIconButton (click)="collapsed.set(!collapsed())" aria-label="Toggle sidebar">
+    <button matIconButton (click)="updateSidenavState()" aria-label="Toggle sidebar">
       <mat-icon>menu</mat-icon>
     </button>
 
@@ -18,16 +17,12 @@
     </button>
   </mat-toolbar>
 
-  <!-- dont animate width, use transform -->
-  <!-- add animation  -->
-  <!-- and make it responsive -->
   <mat-sidenav-container class="flex-1">
     <mat-sidenav
       #snav
       opened
       [mode]="isMobile() ? 'over' : 'side'"
-      [style.width]="sidebarWidth()"
-      [style.transition.width]="collapsed() ? '0.3s' : '0.3s'"
+      [class.collapsed]="!isMobile() && collapsed()"
       [fixedInViewport]="isMobile()"
       fixedTopGap="56"
     >
@@ -39,7 +34,7 @@
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
           >
-            <mat-icon matListItemIcon>favorite</mat-icon>
+            <mat-icon matListItemIcon>{{ link.icon }}</mat-icon>
             @if (!collapsed()) {
               <span matListItemTitle>{{ link.label }}</span>
             }
@@ -48,7 +43,10 @@
       </mat-nav-list>
     </mat-sidenav>
 
-    <mat-sidenav-content [style.marginLeft]="isMobile() ? '0' : sidebarWidth()">
+    <mat-sidenav-content
+      [class.desktop-version-collapsed]="!isMobile() && collapsed()"
+      [class.desktop-version-uncollapsed]="!isMobile() && !collapsed()"
+    >
       <main class="p-4 mx-auto h-full max-w-400">
         <ng-content />
       </main>

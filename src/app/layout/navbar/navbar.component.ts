@@ -1,24 +1,28 @@
-import { MediaMatcher } from '@angular/cdk/layout';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
+  effect,
   inject,
+  Signal,
   signal,
   viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { map } from 'rxjs';
 
 import { ThemeService } from '@core/services/theme.service';
 
 type NavLink = {
   label: string;
   href: string;
+  icon: string;
 };
 
 @Component({
@@ -40,28 +44,40 @@ type NavLink = {
   },
 })
 export class NavbarComponent {
-  private readonly media = inject(MediaMatcher);
   protected readonly themeService = inject(ThemeService);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
   sidenav = viewChild.required(MatSidenav);
 
+  protected readonly isMobile: Signal<boolean> = toSignal(
+    this.breakpointObserver.observe('(max-width: 600px)').pipe(map(({ matches }) => matches)),
+    { initialValue: false }
+  );
+
   collapsed = signal(false);
-  sidebarWidth = computed(() => (this.collapsed() ? '58px' : '250px'));
-
-  protected readonly isMobile = signal(true);
-
-  private readonly _mobileQuery: MediaQueryList;
-  private readonly _mobileQueryListener: () => void;
 
   protected readonly navLinks: NavLink[] = [
-    { label: 'Accueil', href: '/home' },
-    { label: 'Formulaire', href: '/pdf-masking-form' },
+    { label: 'Accueil', href: '/landing-page', icon: 'favorite' },
+    { label: 'Formulaire', href: '/pdf-masking-form', icon: 'favorite' },
   ];
 
   constructor() {
-    this._mobileQuery = this.media.matchMedia('(max-width: 600px)');
-    this.isMobile.set(this._mobileQuery.matches);
-    this._mobileQueryListener = () => this.isMobile.set(this._mobileQuery.matches);
-    this._mobileQuery.addEventListener('change', this._mobileQueryListener);
+    effect(() => {
+      if (this.isMobile()) {
+        this.sidenav().close();
+      } else {
+        this.collapsed.set(false);
+        this.sidenav().open();
+      }
+    });
+  }
+
+  updateSidenavState(): void {
+    console.log(this.isMobile());
+    if (this.isMobile()) {
+      this.sidenav().toggle();
+    } else {
+      this.collapsed.set(!this.collapsed());
+    }
   }
 }
