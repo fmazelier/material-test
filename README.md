@@ -1,8 +1,7 @@
-# material-test
+# anos-frontend
 
 Application Angular **21** configurée avec Angular Material, Tailwind CSS 4, et une chaîne qualité complète (ESLint, Stylelint, Prettier, Husky, lint-staged).
 
-> **Version actuelle :** `0.2.0-snapshot`  
 > **Moteur requis :** Node ≥ 24 · npm ≥ 11
 
 ---
@@ -35,8 +34,8 @@ Application Angular **21** configurée avec Angular Material, Tailwind CSS 4, et
 
 ```bash
 # Cloner le repo
-git clone <url-du-repo>
-cd material-test
+git clone https://gitlab.sofa.snm.snecma/lso/anos-frontend.git
+cd anos-frontend
 
 # Installer les dépendances (installe aussi les hooks Husky via le script "prepare")
 npm install
@@ -56,9 +55,7 @@ npm install
     pdf.json
 
 /scripts                            # Scripts utilitaires Node.js
-  entrypoint.sh
   generate-mat-tailwind-snippets.mjs
-  release.mjs
 
 /src
   /app
@@ -67,37 +64,31 @@ npm install
       /interceptors
       /guards
       /config
-      /layout                       # Header, sidebar (shell de l'app)
-        /header
-        /sidebar
+
+    /features                       # Domaines métier (lazy-loadés)
+      /ma-feature
+        ma-feature.routes.ts
+        /pages
+          /ma-page                  # Un dossier par page routée
+            ma-page.ts
+            /components             # Composants utilisés UNIQUEMENT par cette page
+          /ma-sous-page             # Sous-route au même niveau (pas imbriquée dans /ma-page)
+            ma-sous-page.ts
+            /components
+        /components                 # Composants partagés entre plusieurs pages de la feature
+        /services                   # Services propres à la feature
+        /models                     # Types de la feature
+
+    /layout                         # Header, sidebar (shell de l'app)
+      /header
+      /sidebar
 
     /shared                         # Composants, directives, pipes SANS logique métier
-      /ui                           # Composants UI purement présentationnels
+      /components                   # Composants UI purement présentationnels
       /directives
       /pipes
       /utils
       /models
-
-    /features                       # Domaines métier (lazy-loadés)
-      /users
-        users.routes.ts
-        /pages
-        /components
-        /services
-        /models
-
-      /orders
-        orders.routes.ts
-        /pages
-          /panier
-            panier.ts
-            /components             # Composants spécifiques à cette page
-          /panier-confirmation      # Sous-route au même niveau, pas imbriquée
-            panier-confirmation.ts
-            /components
-        /components                 # Composants partagés entre les pages d'orders
-        /services
-        /models
 
   /styles                           # Styles globaux
     /global                         # Animations, reset custom
@@ -110,7 +101,7 @@ npm install
 ### Principes d'organisation
 
 - **`core/`** — services instanciés une seule fois (`providedIn: 'root'`), interceptors, guards et layout applicatif.
-- **`shared/ui/`** — composants **strictement présentationnels** : aucun import de service métier n'est autorisé ici.
+- **`shared/components/`** — composants **strictement présentationnels** : aucun import de service métier n'est autorisé ici.
 - **`features/`** — chaque feature est lazy-loadée via son propre `*.routes.ts`. La hiérarchie des dossiers dans `/pages` reste **plate** ; c'est le fichier de routes qui définit l'imbrication parent/enfant via `children[]`, pas la structure de dossiers.
 
 ---
@@ -150,7 +141,6 @@ npm install
 
 | Commande                                 | Description                                                                                                                       |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run release`                        | Lance le script de release (`scripts/release.mjs`) — gestion du versioning et du changelog                                        |
 | `npm run generate:mat-tailwind-snippets` | Génère des snippets VS Code combinant les classes Angular Material et Tailwind CSS (`scripts/generate-mat-tailwind-snippets.mjs`) |
 
 ---
@@ -187,24 +177,11 @@ lint-staged analyse **uniquement les fichiers stagés** et applique les vérific
 
 > Un commit est **bloqué** si ESLint ou Stylelint remonte le moindre warning après correction automatique.
 
-### Désactiver temporairement les hooks
-
-```bash
-# Pour un commit ponctuel (à éviter en règle générale)
-git commit --no-verify -m "fix: ..."
-```
-
 ---
 
 ## Versionning & Release
 
-Le script `scripts/release.mjs` automatise le cycle de release :
-
-```bash
-npm run release
-```
-
-Ce script prend en charge la mise à jour de la version dans `package.json`, la génération du changelog, et le tag Git associé. Se référer aux commentaires dans `scripts/release.mjs` pour les options disponibles (patch / minor / major).
+TODO
 
 ---
 
@@ -242,7 +219,7 @@ Créer un fichier `.vscode/extensions.json` à la racine avec :
 
 ### Settings utilisateur recommandés (`settings.json`)
 
-Ajouter ces entrées dans votre `settings.json` **utilisateur** (⌘+Shift+P → _Open User Settings JSON_) :
+Ajouter ces entrées dans votre `settings.json` **utilisateur** (ctrl+Shift+P → _Open User Settings JSON_) :
 
 ```json
 {
