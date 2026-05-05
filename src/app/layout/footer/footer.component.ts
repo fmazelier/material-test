@@ -4,11 +4,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  inject,
   signal,
-  viewChild,
 } from '@angular/core';
 
-const FOOTER_BREAKPOINT = 400;
+const FOOTER_MIN_WIDTH_FOR_ROW_LAYOUT = 400;
 
 @Component({
   selector: 'app-footer',
@@ -28,20 +28,23 @@ const FOOTER_BREAKPOINT = 400;
       <p class="font-medium">Copyright © Safran Aircraft Engines {{ currentDate | date: 'y' }}</p>
     </footer>
   `,
-  styles: ``,
+  styles: `
+    :host {
+      display: block;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FooterComponent implements AfterViewInit {
-  private readonly footer = viewChild.required<ElementRef<HTMLElement>>('footer');
-
+  private readonly host = inject(ElementRef);
   private readonly observer = new ResizeObserver(([entry]) => {
-    this.isSmall.set(entry.contentRect.width < FOOTER_BREAKPOINT);
+    this.isSmall.set(entry.contentRect.width < FOOTER_MIN_WIDTH_FOR_ROW_LAYOUT);
   });
 
   protected readonly isSmall = signal(false);
   protected readonly currentDate = new Date();
 
   ngAfterViewInit(): void {
-    this.observer.observe(this.footer().nativeElement);
+    this.observer.observe(this.host.nativeElement);
   }
 }

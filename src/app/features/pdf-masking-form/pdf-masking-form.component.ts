@@ -1,25 +1,29 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   inject,
-  Signal,
+  OnDestroy,
   signal,
   viewChild,
+  WritableSignal,
 } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatStepper, MatStepperModule, StepperOrientation } from '@angular/material/stepper';
-import { finalize, map, switchMap } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 
 import { FileUploadInputComponent } from '@shared/components/file-upload-input/file-upload-input.component';
 import { SnackbarService } from '@shared/services/snackbar.service';
 
-import { PdfMaskingService } from './services/form.service';
+import { PdfMaskingService } from './services/pdf-masking.service';
+
+const STEPPER_MIN_WIDTH_FOR_HORIZONTAL = 600;
 
 @Component({
   selector: 'app-pdf-masking-form',
@@ -37,24 +41,28 @@ import { PdfMaskingService } from './services/form.service';
     :host::ng-deep .mat-vertical-content-container {
       margin-top: 8px;
     }
+    :host {
+      // Required for ResizeObserver (custom elements are inline by default)
+      display: block;
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // providers: [{ provide: PdfMaskingService, useClass: PdfMaskingMockService }],
 })
-export default class PdfMaskingFormComponent {
+export default class PdfMaskingFormComponent implements AfterViewInit, OnDestroy {
   private readonly pdfMaskingService = inject(PdfMaskingService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackbarService = inject(SnackbarService);
-  private readonly breakpointObserver = inject(BreakpointObserver);
 
   protected readonly stepper = viewChild.required(MatStepper);
+  private readonly host = inject(ElementRef);
 
-  protected readonly stepperOrientation: Signal<StepperOrientation> = toSignal(
-    this.breakpointObserver
-      .observe('(min-width: 800px)')
-      .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical'))),
-    { initialValue: 'horizontal' }
-  );
+  private readonly observer = new ResizeObserver(([entry]) => {
+    const orientation =
+      entry.contentRect.width < STEPPER_MIN_WIDTH_FOR_HORIZONTAL ? 'vertical' : 'horizontal';
+    this.stepperOrientation.set(orientation);
+  });
+
+  protected readonly stepperOrientation: WritableSignal<StepperOrientation> = signal('horizontal');
 
   protected readonly textControl = new FormControl<File[]>([], {
     validators: Validators.required,
@@ -67,6 +75,14 @@ export default class PdfMaskingFormComponent {
 
   protected readonly sendingText = signal(false);
   protected readonly sendingPdf = signal(false);
+
+  ngAfterViewInit(): void {
+    this.observer.observe(this.host.nativeElement);
+  }
+
+  ngOnDestroy(): void {
+    this.observer.disconnect();
+  }
 
   uploadText(file: File): void {
     this.sendingText.set(true);
