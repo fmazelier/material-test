@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import localeFr from '@angular/common/locales/fr';
 import {
   ApplicationConfig,
@@ -17,6 +18,7 @@ import {
   withPreloading,
 } from '@angular/router';
 
+import { httpErrorInterceptor } from '@core/interceptors/http-error.interceptor';
 import { ConfigService } from '@core/services/config.service';
 import { CustomTitleStrategyService } from '@core/services/custom-title-strategy.service';
 import { ThemeService } from '@core/services/theme.service';
@@ -31,6 +33,7 @@ export const appConfig: ApplicationConfig = {
       const configService = inject(ConfigService);
       return configService.loadConfig();
     }),
+    provideHttpClient(withInterceptors([httpErrorInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideZonelessChangeDetection(),
