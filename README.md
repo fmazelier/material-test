@@ -64,6 +64,9 @@ npm install
       /interceptors
       /guards
       /config
+      /layout                         # Header, sidebar (shell de l'app)
+        /footer
+        /sidebar
 
     /features                       # Domaines métier (lazy-loadés)
       /ma-feature
@@ -78,10 +81,6 @@ npm install
         /components                 # Composants partagés entre plusieurs pages de la feature
         /services                   # Services propres à la feature
         /models                     # Types de la feature
-
-    /layout                         # Header, sidebar (shell de l'app)
-      /header
-      /sidebar
 
     /shared                         # Composants, directives, pipes SANS logique métier
       /components                   # Composants UI purement présentationnels

@@ -25,7 +25,7 @@
     "<SEPARATOR>",
     "^@env/(.*)$",
     "<SEPARATOR>",
-    "^(app|@core|@features|@layout|@shared)/(.*)$",
+    "^(app|@core|@features|@shared)/(.*)$",
     "<SEPARATOR>",
     "<THIRD_PARTY_MODULES>",
     "<SEPARATOR>",

@@ -18,8 +18,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 
+import { FooterComponent } from '@core/layout/footer/footer.component';
 import { ThemeService } from '@core/services/theme.service';
-import { FooterComponent } from '@layout/footer/footer.component';
 
 type NavLink = {
   label: string;
@@ -28,7 +28,7 @@ type NavLink = {
 };
 
 @Component({
-  selector: 'app-navbar',
+  selector: 'app-shell',
   imports: [
     MatToolbarModule,
     MatButtonModule,
@@ -40,15 +40,15 @@ type NavLink = {
     RouterLinkActive,
     FooterComponent,
   ],
-  templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
+  templateUrl: './shell.component.html',
+  styleUrl: './shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'flex flex-col absolute inset-0',
     '[class.is-mobile]': 'isMobile()',
   },
 })
-export class NavbarComponent {
+export class ShellComponent {
   protected readonly themeService = inject(ThemeService);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
