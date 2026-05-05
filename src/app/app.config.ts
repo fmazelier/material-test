@@ -15,6 +15,7 @@ import {
   provideRouter,
   TitleStrategy,
   withComponentInputBinding,
+  withInMemoryScrolling,
   withPreloading,
 } from '@angular/router';
 
@@ -35,7 +36,15 @@ export const appConfig: ApplicationConfig = {
     }),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withPreloading(PreloadAllModules), withComponentInputBinding()),
+    provideRouter(
+      routes,
+      withPreloading(PreloadAllModules),
+      withComponentInputBinding(),
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'enabled',
+        anchorScrolling: 'enabled',
+      })
+    ),
     provideZonelessChangeDetection(),
     provideEnvironmentInitializer(() => {
       inject(ThemeService);
