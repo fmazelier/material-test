@@ -12,10 +12,16 @@ export class ConfigService {
   config!: AppConfig;
 
   async loadConfig(): Promise<void> {
-    const response = await fetch('config.json');
+    let response: Response;
+
+    try {
+      response = await fetch('config.json');
+    } catch {
+      throw new Error('[Config] Network error while loading config.json');
+    }
 
     if (!response.ok) {
-      throw new Error('[Config] Failed to load configuration file required for the app to work');
+      throw new Error(`[Config] Failed to load config.json (HTTP ${response.status})`);
     }
 
     const raw = await response.json();
@@ -65,7 +71,7 @@ export class ConfigService {
   }
 
   get<K extends keyof AppConfig>(key: K): AppConfig[K] {
-    return this.config?.[key];
+    return this.config[key];
   }
 
   get apiUrl(): string {
