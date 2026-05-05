@@ -21,7 +21,7 @@
     <mat-sidenav
       opened
       [mode]="isMobile() ? 'over' : 'side'"
-      [class.collapsed]="!isMobile() && collapsed()"
+      [class.collapsed]="!isMobile() && isCollapsed()"
       [fixedInViewport]="isMobile()"
       fixedTopGap="56"
     >
@@ -41,8 +41,8 @@
     </mat-sidenav>
 
     <mat-sidenav-content
-      [class.desktop-version-collapsed]="!isMobile() && collapsed()"
-      [class.desktop-version-uncollapsed]="!isMobile() && !collapsed()"
+      [class.collapsed]="!isMobile() && isCollapsed()"
+      [class.expanded]="!isMobile() && !isCollapsed()"
     >
       <main class="p-4 mx-auto min-h-full max-w-400">
         <ng-content />

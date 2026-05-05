@@ -54,7 +54,7 @@ export class NavbarComponent {
     this.breakpointObserver.observe('(max-width: 600px)').pipe(map(({ matches }) => matches)),
     { initialValue: false }
   );
-  protected readonly collapsed = signal(false);
+  protected readonly isCollapsed = signal(false);
 
   protected readonly navLinks: NavLink[] = [
     { label: 'Accueil', href: '/landing-page', icon: 'home' },
@@ -69,7 +69,7 @@ export class NavbarComponent {
       untracked(() => {
         if (mobile) {
           this.sidenav().close();
-          this.collapsed.set(false);
+          this.isCollapsed.set(false);
         } else {
           this.sidenav().open();
         }
@@ -81,7 +81,7 @@ export class NavbarComponent {
     if (this.isMobile()) {
       this.sidenav().toggle();
     } else {
-      this.collapsed.set(!this.collapsed());
+      this.isCollapsed.update((value) => !value);
     }
   }
 }

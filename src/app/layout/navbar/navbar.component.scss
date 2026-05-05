@@ -36,11 +36,11 @@ mat-sidenav {
 }
 
 mat-sidenav-content {
-  &.desktop-version-collapsed {
+  &.collapsed {
     margin-left: $collapsed-width !important;
   }
 
-  &.desktop-version-uncollapsed {
+  &.expanded {
     margin-left: $uncollapsed-width !important;
   }
 }
