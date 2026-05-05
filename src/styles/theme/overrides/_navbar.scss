@@ -3,9 +3,8 @@
 :root {
   @include mat.sidenav-overrides(
     (
-      container-background-color: var(--mat-sys-surface-container-lowest),
       container-shape: var(--mat-sys-corner-none),
-      container-width: 200px,
+      container-divider-color: color-mix(in srgb, var(--mat-sys-outline) 30%, transparent),
     )
   );
 }
