@@ -46,14 +46,12 @@ export class ConfigService {
 
   private logBanner(): void {
     const deployedAt = this.config.deployedAt;
+
     const deployedLabel = deployedAt
       ? `deployed on ${new Intl.DateTimeFormat('en-GB', {
           day: '2-digit',
           month: 'long',
           year: 'numeric',
-          hourCycle: 'h23',
-          timeZone: 'Europe/Paris',
-        }).format(new Date(deployedAt))} at ${new Intl.DateTimeFormat('en-GB', {
           hour: '2-digit',
           minute: '2-digit',
           hourCycle: 'h23',
