@@ -23,9 +23,16 @@ const FOOTER_MIN_WIDTH_FOR_ROW_LAYOUT = 400;
       [class.flex-row]="!isSmall()"
       [class.justify-between]="!isSmall()"
     >
-      <img ngSrc="logo-safran.webp" width="50" height="55" alt="Logo de safran" />
-
-      <p class="font-medium">Copyright © Safran Aircraft Engines {{ currentDate | date: 'y' }}</p>
+      <p [class.order-2]="isSmall()" class="font-medium">
+        Copyright © Safran Aircraft Engines {{ currentDate | date: 'y' }}
+      </p>
+      <img
+        [class.order-1]="isSmall()"
+        ngSrc="logo-safran.webp"
+        width="50"
+        height="55"
+        alt="Logo de safran"
+      />
     </footer>
   `,
   styles: `
