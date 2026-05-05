@@ -19,7 +19,6 @@
 
   <mat-sidenav-container class="flex-1">
     <mat-sidenav
-      #snav
       opened
       [mode]="isMobile() ? 'over' : 'side'"
       [class.collapsed]="!isMobile() && collapsed()"
@@ -35,9 +34,7 @@
             [routerLinkActiveOptions]="{ exact: true }"
           >
             <mat-icon matListItemIcon>{{ link.icon }}</mat-icon>
-            @if (!collapsed()) {
-              <span matListItemTitle>{{ link.label }}</span>
-            }
+            <span matListItemTitle>{{ link.label }}</span>
           </a>
         }
       </mat-nav-list>
@@ -47,7 +44,7 @@
       [class.desktop-version-collapsed]="!isMobile() && collapsed()"
       [class.desktop-version-uncollapsed]="!isMobile() && !collapsed()"
     >
-      <main class="p-4 mx-auto h-full max-w-400">
+      <main class="p-4 mx-auto min-h-full max-w-400">
         <ng-content />
       </main>
     </mat-sidenav-content>

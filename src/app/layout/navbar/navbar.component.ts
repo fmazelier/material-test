@@ -6,6 +6,7 @@ import {
   inject,
   Signal,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -47,33 +48,36 @@ export class NavbarComponent {
   protected readonly themeService = inject(ThemeService);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
-  sidenav = viewChild.required(MatSidenav);
+  private readonly sidenav = viewChild.required(MatSidenav);
 
   protected readonly isMobile: Signal<boolean> = toSignal(
     this.breakpointObserver.observe('(max-width: 600px)').pipe(map(({ matches }) => matches)),
     { initialValue: false }
   );
-
-  collapsed = signal(false);
+  protected readonly collapsed = signal(false);
 
   protected readonly navLinks: NavLink[] = [
-    { label: 'Accueil', href: '/landing-page', icon: 'favorite' },
-    { label: 'Formulaire', href: '/pdf-masking-form', icon: 'favorite' },
+    { label: 'Accueil', href: '/landing-page', icon: 'home' },
+    { label: 'Transformer un PDF', href: '/pdf-masking-form', icon: 'picture_as_pdf' },
   ];
 
   constructor() {
     effect(() => {
-      if (this.isMobile()) {
-        this.sidenav().close();
-      } else {
-        this.collapsed.set(false);
-        this.sidenav().open();
-      }
+      const mobile = this.isMobile();
+
+      // update the sidenav state based on the screen size
+      untracked(() => {
+        if (mobile) {
+          this.sidenav().close();
+          this.collapsed.set(false);
+        } else {
+          this.sidenav().open();
+        }
+      });
     });
   }
 
   updateSidenavState(): void {
-    console.log(this.isMobile());
     if (this.isMobile()) {
       this.sidenav().toggle();
     } else {
