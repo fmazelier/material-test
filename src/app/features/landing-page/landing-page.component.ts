@@ -11,32 +11,32 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
   template: `
     <div
       class="
-    flex flex-col items-center text-center
-    md:grid md:grid-cols-2 md:items-center md:text-left md:gap-12 lg:gap-20
+    flex flex-col items-center justify-center text-center
+    lg:grid lg:grid-cols-2 lg:items-center lg:justify-center lg:text-left lg:gap-12
   "
     >
-      <!-- Colonne gauche : titre + description + CTA -->
-      <div class="flex flex-col items-center md:items-start">
-        <h1 class="text-4xl mb-0 animate-fade-in-up">
+      <div class="flex flex-col items-center lg:items-start">
+        <h1 class="text-4xl lg:text-5xl mb-0 animate-fade-in-up">
           Masquez les mots importants
-          <span class="animated-gradient-text"> de votre PDF</span>
+          <span class="animated-gradient-text">de vos PDF</span>
         </h1>
 
         <p
           class="
-        text-lg text-on-surface/60 mt-8
-        mb-16 md:mb-0
+        text-lg lg:text-xl text-on-surface/60 mt-8
+        mb-16 lg:mb-0
         animate-fade-in-up [animation-delay:150ms]!
       "
         >
-          Confiez-nous une liste de mots, un fichier PDF et on s'occupe du reste
+          Protégez les informations sensibles dans vos documents PDF avec notre outil de masquage de
+          mots intelligent.
         </p>
 
         <a
           class="
-        mt-8 md:mt-12
+        mt-8 lg:mt-12
         animate-fade-in-up [animation-delay:300ms]!
-        hidden! md:inline-flex!
+        hidden! lg:inline-flex!
       "
           matButton="filled"
           routerLink="/pdf-masking-form"
@@ -45,21 +45,19 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
         </a>
       </div>
 
-      <!-- Colonne droite : animation Lottie -->
       <mat-card
         class="
-      w-full max-w-100 mx-auto mt-16 md:mt-0
+      w-full max-w-100 mx-auto
       max-h-100 overflow-hidden
-      mat-card-color-elev-5
+      mat-card-color-elev-3
       animate-fade-in-up [animation-delay:350ms]!
     "
       >
         <div appLottie [options]="lottieOptions"></div>
       </mat-card>
 
-      <!-- CTA visible uniquement sur mobile (sous la Lottie) -->
       <a
-        class="mt-16 md:hidden! animate-fade-in-up [animation-delay:550ms]!"
+        class="mt-16 lg:hidden! animate-fade-in-up [animation-delay:550ms]!"
         matButton="filled"
         routerLink="/pdf-masking-form"
         >Commencer</a

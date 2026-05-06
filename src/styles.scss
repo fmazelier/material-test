@@ -50,3 +50,9 @@ body {
   margin: 0;
   height: 100%;
 }
+
+
+/* Routed components fill the remaining height of the flex column layout defined on <main> */
+main router-outlet + * {
+  flex: 1;
+}
