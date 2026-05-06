@@ -15,6 +15,64 @@
   will-change: transform, opacity;
 }
 
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% center;
+  }
+
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.animated-gradient-text {
+  background-image: linear-gradient(
+    to right,
+    var(--mat-sys-primary),
+    var(--mat-sys-secondary),
+    var(--mat-sys-primary)
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-shift 3s linear infinite;
+}
+
+// @keyframes gradient-shift {
+//   from {
+//     background-position: 0% center;
+//   }
+
+//   to {
+//     background-position: 100% center;
+//   }
+// }
+
+// .animated-gradient-text {
+//   background-image: linear-gradient(
+//     to right,
+//     var(--mat-sys-primary),
+//     var(--mat-sys-tertiary),
+//     var(--mat-sys-primary)
+//   );
+//   background-size: 200% auto;
+//   background-clip: text;
+//   color: transparent;
+//   animation: gradient-shift 2.5s ease-in-out infinite;
+// }
+
+.text-primary-underline {
+  background-image: linear-gradient(
+    to right,
+    var(--mat-sys-primary),
+    oklch(from var(--mat-sys-primary) l c calc(h + 50))
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 3px;
+  background-position: 0 100%;
+  padding-bottom: 2px;
+}
+
 // styles
 //   theme
 //     _animations.scss
