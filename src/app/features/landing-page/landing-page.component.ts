@@ -22,22 +22,17 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
         </h1>
 
         <p
-          class="
-        text-lg lg:text-xl text-on-surface/60 mt-8
-        mb-16 lg:mb-0
-        animate-fade-in-up [animation-delay:150ms]!
-      "
+          class="text-lg lg:text-xl mb-8 lg:mb-0 mt-8
+         text-on-surface/60 animate-fade-in-up [animation-delay:150ms]!"
         >
           Protégez les informations sensibles dans vos documents PDF avec notre outil de masquage de
           mots intelligent.
         </p>
 
         <a
-          class="
-        mt-8 lg:mt-12
+          class="mt-8 lg:mt-12
         animate-fade-in-up [animation-delay:300ms]!
-        hidden! lg:inline-flex!
-      "
+        hidden! lg:inline-flex!"
           matButton="filled"
           routerLink="/pdf-masking-form"
         >
@@ -57,7 +52,7 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
       </mat-card>
 
       <a
-        class="mt-16 lg:hidden! animate-fade-in-up [animation-delay:550ms]!"
+        class="mt-8 mb-4 lg:hidden! animate-fade-in-up [animation-delay:550ms]!"
         matButton="filled"
         routerLink="/pdf-masking-form"
         >Commencer</a

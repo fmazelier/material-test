@@ -10,13 +10,13 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       flex flex-col items-center gap-2
       @[400px]:flex-row @[400px]:justify-between"
     >
-      <img
+      <a
         class="@[400px]:order-2"
-        ngSrc="logo-safran.webp"
-        width="50"
-        height="55"
-        alt="Logo de safran"
-      />
+        href="https://www.safran-group.com/companies/safran-aircraft-engines"
+        target="_blank"
+      >
+        <img ngSrc="logo-safran.webp" width="50" height="55" alt="Logo de safran" />
+      </a>
       <p class="font-medium @[400px]:order-1">
         Copyright © Safran Aircraft Engines {{ currentDate | date: 'y' }}
       </p>
