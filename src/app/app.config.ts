@@ -53,6 +53,3 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'fr-FR' },
   ],
 };
-
-// eslint-disable-next-line no-console
-console.log('AppConfig loaded:', appConfig);
