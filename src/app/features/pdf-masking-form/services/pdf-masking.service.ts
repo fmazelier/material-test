@@ -1,74 +1,38 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 import { ConfigService } from '@core/services/config.service';
-import { SnackbarService } from '@shared/services/snackbar.service';
+import { triggerDownload } from '@shared/utils/download.utils';
 
 import { UploadPdfResponse } from '../models/form.model';
 
-import { PdfMaskingServiceAbstract } from './pdf-masking.service.interface';
+import { PdfMasking } from './pdf-masking.abstract';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class PdfMaskingService implements PdfMaskingServiceAbstract {
+@Injectable()
+export class PdfMaskingService extends PdfMasking {
   private readonly config = inject(ConfigService);
   private readonly http = inject(HttpClient);
-  private readonly snackbarService = inject(SnackbarService);
 
   uploadTextFile(file: File): Observable<unknown> {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<unknown>(`${this.config.apiUrl}/anos/upload-variants`, formData).pipe(
-      catchError((err) => {
-        this.snackbarService.error(
-          "Une erreur est survenue lors de l'envoi du fichier texte. Veuillez réessayer"
-        );
-        return throwError(() => err);
-      })
-    );
+    return this.http.post<unknown>(`${this.config.apiUrl}/anos/upload-variants`, formData);
   }
 
   uploadPdf(file: File): Observable<UploadPdfResponse> {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<UploadPdfResponse>(`${this.config.apiUrl}/anos/upload`, formData).pipe(
-      catchError((err) => {
-        this.snackbarService.error(
-          "Une erreur est survenue lors de l'envoi du PDF. Veuillez réessayer"
-        );
-        return throwError(() => err);
-      })
-    );
+    return this.http.post<UploadPdfResponse>(`${this.config.apiUrl}/anos/upload`, formData);
   }
 
-  downloadProcessedPdf(fileName: string): Observable<Blob> {
+  fetchAndDownloadProcessedPdf(fileName: string): Observable<Blob> {
     return this.http
       .get(`${this.config.apiUrl}/anos/download/${fileName}`, {
         responseType: 'blob',
       })
-      .pipe(
-        tap((blob) => this.triggerDownload(blob, fileName)),
-        catchError((err) => {
-          this.snackbarService.error(
-            'Une erreur est survenue lors de la récupération du PDF masqué. Veuillez réessayer'
-          );
-          return throwError(() => err);
-        })
-      );
-  }
-
-  private triggerDownload(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-
-    anchor.href = url;
-    anchor.download = filename;
-    anchor.click();
-
-    URL.revokeObjectURL(url);
+      .pipe(tap((blob) => triggerDownload(blob, fileName)));
   }
 }

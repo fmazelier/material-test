@@ -1,14 +1,12 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   ElementRef,
   inject,
-  OnDestroy,
   signal,
   viewChild,
-  WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -21,7 +19,7 @@ import { finalize, switchMap } from 'rxjs';
 import { FileUploadInputComponent } from '@shared/components/file-upload-input/file-upload-input.component';
 import { SnackbarService } from '@shared/services/snackbar.service';
 
-import { PdfMaskingService } from './services/pdf-masking.service';
+import { PdfMasking } from './services/pdf-masking.abstract';
 
 const STEPPER_MIN_WIDTH_FOR_HORIZONTAL = 600;
 
@@ -48,8 +46,8 @@ const STEPPER_MIN_WIDTH_FOR_HORIZONTAL = 600;
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class PdfMaskingFormComponent implements AfterViewInit, OnDestroy {
-  private readonly pdfMaskingService = inject(PdfMaskingService);
+export default class PdfMaskingFormComponent {
+  private readonly pdfMaskingService = inject(PdfMasking);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackbarService = inject(SnackbarService);
 
@@ -62,7 +60,7 @@ export default class PdfMaskingFormComponent implements AfterViewInit, OnDestroy
     this.stepperOrientation.set(orientation);
   });
 
-  protected readonly stepperOrientation: WritableSignal<StepperOrientation> = signal('horizontal');
+  protected readonly stepperOrientation = signal<StepperOrientation>('horizontal');
 
   protected readonly textControl = new FormControl<File[]>([], {
     validators: Validators.required,
@@ -76,12 +74,14 @@ export default class PdfMaskingFormComponent implements AfterViewInit, OnDestroy
   protected readonly sendingText = signal(false);
   protected readonly sendingPdf = signal(false);
 
-  ngAfterViewInit(): void {
-    this.observer.observe(this.host.nativeElement);
-  }
+  constructor() {
+    afterNextRender(() => {
+      this.observer.observe(this.host.nativeElement);
+    });
 
-  ngOnDestroy(): void {
-    this.observer.disconnect();
+    this.destroyRef.onDestroy(() => {
+      this.observer.disconnect();
+    });
   }
 
   uploadText(file: File): void {
@@ -105,7 +105,7 @@ export default class PdfMaskingFormComponent implements AfterViewInit, OnDestroy
       .uploadPdf(file)
       .pipe(
         switchMap((res) => {
-          return this.pdfMaskingService.downloadProcessedPdf(res.data.processed_filename);
+          return this.pdfMaskingService.fetchAndDownloadProcessedPdf(res.data.processed_filename);
         }),
         finalize(() => this.sendingPdf.set(false)),
         takeUntilDestroyed(this.destroyRef)
@@ -113,5 +113,9 @@ export default class PdfMaskingFormComponent implements AfterViewInit, OnDestroy
       .subscribe(() => {
         this.stepper().selectedIndex = this.stepper().steps.length - 1;
       });
+  }
+
+  protected resetStepper(): void {
+    this.stepper().reset();
   }
 }
