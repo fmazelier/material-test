@@ -37,7 +37,7 @@ USER root
 RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 
 # Copy nginx config template (rendered at runtime with actual BASE_HREF)
-COPY nginx/nginx.conf.template /etc/nginx/conf.d/nginx.template
+COPY nginx/nginx.conf.template /etc/nginx/templates/nginx.conf.template
 
 # Copy security headers config snippet (included in nginx.conf.template) to set HTTP security headers
 COPY nginx/security-headers.conf /etc/nginx/snippets/security-headers.conf

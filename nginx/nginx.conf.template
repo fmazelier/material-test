@@ -43,9 +43,9 @@ server {
   # Dedicated endpoint for k8s liveness/readiness probes
   # Returns 200 without hitting app logic or generating access logs
   location = /healthz {
+    add_header Content-Type text/plain;
     access_log off;
     return 200 "ok";
-    add_header Content-Type text/plain;
   }
 
   # ─── Angular SPA ───────────────────────────────────────────────────
