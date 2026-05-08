@@ -3,11 +3,13 @@ set -e
 
 # ─── Resolve app name ─────────────────────────────────────────────
 APP_NAME=$(cat /etc/app-name)
-CONFIG_PATH="/app/dist/${APP_NAME}/browser/config.json"
+CONFIG_PATH="/usr/share/nginx/html/app/config.json"
+BASE_HREF=$(cat /etc/base-href)
 
 echo ""
 echo "  🚀 Starting ${APP_NAME}"
-echo "  📂 Config path: ${CONFIG_PATH}"
+echo "  📂 Config  : ${CONFIG_PATH}"
+echo "  🔗 BaseHref: ${BASE_HREF}"
 echo ""
 
 # ─── Guard: config.json must exist ────────────────────────────────
@@ -34,9 +36,14 @@ else
   echo "ℹ️  deployedAt already set — skipping (container restart detected)"
 fi
 
-# ─── Copy dist to nginx html folder ───────────────────────────────
-cp -r /app/dist/${APP_NAME}/browser/. /usr/share/nginx/html/${APP_NAME}/
+# ─── Generate nginx conf ──────────────────────────────────────────
+sed "s|\${BASE_HREF}|${BASE_HREF}|g" \
+  /etc/nginx/conf.d/nginx.template \
+  > /etc/nginx/conf.d/default.conf
+echo "  ✅ nginx.conf generated for base href: ${BASE_HREF}"
 
-# ─── Hand off to nginx ─────────────────────────────────────────────
+# ─── Start nginx ──────────────────────────────────────────────────
+echo ""
 echo "  🌐 Starting nginx..."
+echo ""
 exec nginx -g "daemon off;"

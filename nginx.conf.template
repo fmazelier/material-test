@@ -1,0 +1,51 @@
+server {
+  listen 8080;
+  server_name _;
+
+  gzip on;
+  gzip_vary on;
+  gzip_types text/plain text/css application/javascript application/json
+             image/svg+xml application/wasm;
+  gzip_min_length 1024;
+
+  # ─── Runtime config ────────────────────────────────────────────────
+  # Never cache config.json — it contains runtime values (apiUrl, deployedAt...)
+  # injected at container startup and must always be fresh
+  location = ${BASE_HREF}config.json {
+    alias /usr/share/nginx/html/app/config.json;
+    add_header Cache-Control "no-cache, no-store, must-revalidate";
+  }
+
+  # ─── Lottie animations ─────────────────────────────────────────────
+  # Not fingerprinted by Angular — cache for 30 days
+  # stale-while-revalidate allows background refresh without blocking the user
+  location ${BASE_HREF}lottie-animations/ {
+    alias /usr/share/nginx/html/app/lottie-animations/;
+    add_header Cache-Control "public, max-age=2592000, stale-while-revalidate=86400";
+    access_log off;
+  }
+
+  # ─── Angular SPA ───────────────────────────────────────────────────
+  # Serves the app under its base href; falls back to index.html for client-side routing
+  location ${BASE_HREF} {
+    alias /usr/share/nginx/html/app/;
+    try_files $uri $uri/ ${BASE_HREF}index.html;
+
+    # Angular fingerprints JS/CSS/font filenames at build time — safe to cache forever
+    location ~* \.(js|css|woff2?|ttf|ico|png|svg|webp)$ {
+      add_header Cache-Control "public, max-age=31536000, immutable";
+      access_log off;
+    }
+  }
+
+  # ─── Root redirect ─────────────────────────────────────────────────
+  location = / {
+    return 301 ${BASE_HREF};
+  }
+
+  # ─── Security ──────────────────────────────────────────────────────
+  # Block access to hidden files
+  location ~ /\. {
+    deny all;
+  }
+}

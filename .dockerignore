@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.angular/
+
+.git/
+.gitignore
+
+.gitlab-ci.yml
+
+.vscode/
+.idea/
+
+*.local
+.env*
+
+*.log
+npm-debug.log*
