@@ -60,8 +60,4 @@ USER $UID
 
 EXPOSE 80
 
-# Overridden by K8s readiness/liveness probes in production
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:80/ || exit 1
-
 CMD ["/entrypoint.sh"]
