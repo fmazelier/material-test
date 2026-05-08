@@ -11,7 +11,7 @@ RUN npm ci --prefer-offline
 COPY scripts ./scripts/
 COPY . .
 
-# Extract app name and base href from project config files
+# Extract app name from project config files
 RUN node scripts/prepare-build.mjs
 
 # Ensure config.json exists and reset deployedAt before build
