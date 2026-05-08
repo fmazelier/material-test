@@ -58,10 +58,10 @@ RUN chown -R ${UID} /app /usr/share/nginx/html /etc/nginx /etc/app-name /etc/bas
 
 USER $UID
 
-EXPOSE 8080
+EXPOSE 80
 
 # Overridden by K8s readiness/liveness probes in production
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:8080/ || exit 1
+  CMD wget -qO- http://localhost:80/ || exit 1
 
 CMD ["/entrypoint.sh"]
