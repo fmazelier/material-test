@@ -4,7 +4,7 @@ set -e
 # ─── Resolve app name ─────────────────────────────────────────────
 APP_NAME=$(cat /etc/app-name)
 CONFIG_PATH="/usr/share/nginx/html/app/config.json"
-BASE_HREF=$(cat /etc/base-href)
+export BASE_HREF=$(cat /etc/base-href)
 
 echo ""
 echo "  🚀 Starting ${APP_NAME}"
@@ -36,14 +36,8 @@ else
   echo "ℹ️  deployedAt already set — skipping (container restart detected)"
 fi
 
-# ─── Generate nginx conf ──────────────────────────────────────────
-sed "s|\${BASE_HREF}|${BASE_HREF}|g" \
-  /etc/nginx/conf.d/nginx.template \
-  > /etc/nginx/conf.d/default.conf
-echo "  ✅ nginx.conf generated for base href: ${BASE_HREF}"
-
 # ─── Start nginx ──────────────────────────────────────────────────
 echo ""
 echo "  🌐 Starting nginx..."
 echo ""
-exec nginx -g "daemon off;"
+exec /docker-entrypoint.sh nginx -g "daemon off;"

@@ -37,7 +37,7 @@ USER root
 RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 
 # Copy nginx config template (rendered at runtime with actual BASE_HREF)
-COPY nginx.conf.template /etc/nginx/conf.d/nginx.template
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Copy build artifacts from builder stage
 COPY --from=builder /app/.app-name /etc/app-name
