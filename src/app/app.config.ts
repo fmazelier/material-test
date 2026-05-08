@@ -17,6 +17,7 @@ import {
   withComponentInputBinding,
   withInMemoryScrolling,
   withPreloading,
+  withRouterConfig,
 } from '@angular/router';
 
 import { httpErrorInterceptor } from '@core/interceptors/http-error.interceptor';
@@ -40,6 +41,9 @@ export const appConfig: ApplicationConfig = {
       routes,
       withPreloading(PreloadAllModules),
       withComponentInputBinding(),
+      withRouterConfig({
+        paramsInheritanceStrategy: 'always',
+      }),
       withInMemoryScrolling({
         scrollPositionRestoration: 'enabled',
         anchorScrolling: 'enabled',
