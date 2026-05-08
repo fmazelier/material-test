@@ -1,4 +1,3 @@
-
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
 ## TypeScript Best Practices
@@ -26,6 +25,9 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 - Keep components small and focused on a single responsibility
 - Use `input()` and `output()` functions instead of decorators
+- Use `model()` for two-way binding signals
+- Use `viewChild`, `viewChildren`, `contentChild`, and `contentChildren` signal queries instead of decorators
+- Use the `.required()` modifier on signal queries (e.g., `viewChild.required()`) when the element is guaranteed to be in the template to ensure non-nullable types
 - Use `computed()` for derived state
 - Set `changeDetection: ChangeDetectionStrategy.OnPush` in `@Component` decorator
 - Prefer inline templates for small components
@@ -34,10 +36,17 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Do NOT use `ngStyle`, use `style` bindings instead
 - When using external templates/styles, use paths relative to the component TS file.
 
+### Lifecycle & DOM Management
+
+- Use `afterNextRender` instead of `ngAfterViewInit` for DOM manipulations, layout measurements, or initializing third-party libraries.
+- Use `DestroyRef.onDestroy(() => ...)` instead of `ngOnDestroy` to handle cleanup logic (e.g., disconnecting observers or removing manual event listeners).
+- Use `takeUntilDestroyed(this.destroyRef)` for observable subscriptions created outside the constructor
+
 ## State Management
 
 - Use signals for local component state
 - Use `computed()` for derived state
+- Use `resource()` or `rxResource()` for asynchronous data fetching to automatically handle loading and error states
 - Keep state transformations pure and predictable
 - Do NOT use `mutate` on signals, use `update` or `set` instead
 
@@ -45,6 +54,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 - Keep templates simple and avoid complex logic
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
+- Use the `track` property in `@for` loops for performance
 - Use the async pipe to handle observables
 - Do not assume globals like (`new Date()`) are available.
 
@@ -53,3 +63,10 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+## Routing Infrastructure
+
+The application is globally configured with the following routing strategies, which must be taken into account when creating components:
+
+- **Component Input Binding is enabled**: Route parameters, query parameters, and resolved data are automatically bound to component `input()` signals. Do not manually inject `ActivatedRoute` for these values.
+- **Global Parameter Inheritance is enabled**: Child components have access to route parameters from all parent routes by default (thanks to `paramsInheritanceStrategy: 'always'`).
