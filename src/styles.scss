@@ -3,7 +3,6 @@
 @use './styles/theme' as theme;
 @use './styles/global';
 
-
 *,
 ::before,
 ::after {
@@ -18,7 +17,7 @@ html {
         primary: theme.$primary-palette,
         tertiary: theme.$tertiary-palette,
       ),
-      typography: Roboto,
+      typography: Inter,
       density: 0,
     )
   );
@@ -47,7 +46,6 @@ body {
   margin: 0;
   height: 100%;
 }
-
 
 /* Routed components fill the remaining height of the flex column layout defined on <main> */
 main router-outlet + * {
