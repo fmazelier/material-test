@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -20,11 +19,21 @@ import { map } from 'rxjs';
 
 import { FooterComponent } from '@core/layout/footer/footer.component';
 import { ThemeService } from '@core/services/theme.service';
+import { IconComponent } from '@shared/components/icon/icon.component';
+
+import {
+  LucideFileText,
+  LucideHouse,
+  LucideIcon,
+  LucideMenu,
+  LucideMoon,
+  LucideSun,
+} from '@lucide/angular';
 
 type NavLink = {
   label: string;
   href: string;
-  icon: string;
+  icon: LucideIcon;
 };
 
 @Component({
@@ -32,13 +41,13 @@ type NavLink = {
   imports: [
     MatToolbarModule,
     MatButtonModule,
-    MatIconModule,
     MatSidenavModule,
     MatListModule,
     RouterLink,
     RouterOutlet,
     RouterLinkActive,
     FooterComponent,
+    IconComponent,
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -60,9 +69,17 @@ export class ShellComponent {
   );
   protected readonly isCollapsed = signal(false);
 
+  protected readonly icons = {
+    menu: LucideMenu,
+    moon: LucideMoon,
+    sun: LucideSun,
+    home: LucideHouse,
+    file: LucideFileText,
+  };
+
   protected readonly navLinks: NavLink[] = [
-    { label: 'Accueil', href: '/landing-page', icon: 'home' },
-    { label: 'Transformer un PDF', href: '/pdf-masking-form', icon: 'picture_as_pdf' },
+    { label: 'Accueil', href: '/landing-page', icon: LucideHouse },
+    { label: 'Masquer un PDF', href: '/pdf-masking-form', icon: LucideFileText },
   ];
 
   constructor() {

@@ -1,7 +1,7 @@
 <mat-card [class.disabled]="isDisabled()" class="h-full">
   <mat-card-header class="flex! items-center justify-between">
     <mat-card-title class="flex! items-center gap-2 text-base! mb-1.5!">
-      <mat-icon class="card-title-icon text-primary! text-xl w-5 h-5">upload_file</mat-icon>
+      <mat-icon appIcon class="text-primary!" [icon]="icons.fileUp" />
       {{ label() }}
     </mat-card-title>
     @if (maxFiles() > 1) {
@@ -31,7 +31,7 @@
         [matTooltip]="acceptedTypesTooltipLabel()"
         [matTooltipPosition]="'above'"
       >
-        <mat-icon class="text-4xl! w-10! h-10!">cloud_upload</mat-icon>
+        <mat-icon appIcon [size]="40" [icon]="icons.cloudUpload" />
         <span class="drop-label text-sm text-on-surface/70">
           @let label = maxFiles() > 1 ? 'Déposez vos fichiers ici' : 'Déposez votre fichier ici';
           {{ isDragging() ? 'Relâchez pour ajouter' : label }}
@@ -59,8 +59,8 @@
         [disabled]="isDisabled() || loading()"
         [matTooltip]="acceptedTypesTooltipLabel()"
       >
-        <mat-icon>folder_open</mat-icon>
-        Choisir
+        <mat-icon appIcon [icon]="icons.folderOpen" />
+        Parcourir
       </button>
 
       @if (showSubmitButton()) {
@@ -72,14 +72,13 @@
           [disabled]="disabled"
           [matTooltip]="submitButtonTooltilpLabel()"
         >
-          <mat-icon>
-            @if (loading() && !disabled) {
-              <mat-spinner diameter="20" />
-            } @else {
-              cloud_upload
-            }
-          </mat-icon>
-          Envoyer
+          @if (loading() && !disabled) {
+            <mat-spinner diameter="20" />
+          } @else {
+            <mat-icon appIcon [icon]="icons.cloudUpload" />
+          }
+          @let buttonLabel = files().length > 1 ? 'les fichiers' : 'le fichier';
+          Importer {{ buttonLabel }}
         </button>
       }
 
@@ -91,19 +90,21 @@
           [disabled]="isDisabled() || files().length === 0"
           matTooltip="Supprimer tous les fichiers"
         >
-          <mat-icon>cancel</mat-icon>
+          <mat-icon appIcon [icon]="icons.x" />
+
           Annuler
         </button>
       }
 
       @if (informationsTooltipLabel()) {
         <mat-icon
-          class="text-primary!"
+          appIcon
+          [icon]="icons.questionMark"
+          class="text-primary! cursor-pointer"
           [matTooltip]="informationsTooltipLabel()"
           matTooltipPosition="right"
           tabindex="0"
-          >help</mat-icon
-        >
+        />
       }
     </div>
 
@@ -114,7 +115,7 @@
           <div
             class="text-error bg-error/10 text-s flex items-center gap-1.5 py-1.5 px-2.5 rounded-md"
           >
-            <mat-icon>error_outline</mat-icon>
+            <mat-icon appIcon [icon]="icons.circleAlert" />
             <span>{{ error.message }}</span>
           </div>
         }
@@ -140,7 +141,7 @@
             role="listitem"
           >
             <div class="file-item-content flex items-center gap-2.5 min-w-0 flex-1">
-              <mat-icon class="text-primary!">{{ getFileIcon(file) }}</mat-icon>
+              <mat-icon appIcon [icon]="getFileIcon(file)" class="text-primary!" />
               <div class="flex flex-col min-w-0">
                 <span class="font-medium text-sm truncate" [matTooltip]="file.name">{{
                   file.name
@@ -157,7 +158,7 @@
                 class="hover:text-error!"
                 aria-label="Supprimer ce fichier"
               >
-                <mat-icon>close</mat-icon>
+                <mat-icon appIcon [icon]="icons.x" />
               </button>
             }
           </div>
@@ -168,7 +169,7 @@
     <!-- Empty state -->
     @if (files().length === 0 && uploadErrors().length === 0) {
       <div class="empty-state flex items-center gap-2 pt-4 pb-2 text-s">
-        <mat-icon class="text-on-surface/80!">inbox</mat-icon>
+        <mat-icon appIcon class="text-on-surface/80!" [icon]="icons.inbox" />
         <span class="text-on-surface/70">Aucun fichier sélectionné</span>
       </div>
     }

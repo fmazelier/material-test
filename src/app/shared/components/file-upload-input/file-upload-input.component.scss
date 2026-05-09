@@ -25,7 +25,7 @@ mat-card {
   transition: all 200ms ease;
   cursor: pointer;
 
-  mat-icon {
+  mat-icon[appIcon] {
     color: var(--mat-sys-on-surface-variant);
     transition:
       transform 200ms ease,
@@ -39,7 +39,7 @@ mat-card {
     border-color: var(--mat-sys-primary);
     outline: none;
 
-    mat-icon {
+    mat-icon[appIcon] {
       transform: translateY(-4px) scale(1.15);
       color: var(--mat-sys-primary);
     }

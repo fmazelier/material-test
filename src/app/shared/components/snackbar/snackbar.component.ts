@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import {
   MAT_SNACK_BAR_DATA,
   MatSnackBarAction,
@@ -11,32 +10,44 @@ import {
 
 import { SnackbarData, SnackbarType } from '@shared/services/snackbar.service';
 
-const SNACKBAR_ICONS: Record<SnackbarType, string> = {
-  success: 'check_circle',
-  error: 'error',
-  warning: 'warning',
-  info: 'info',
+import {
+  LucideBadgeCheck,
+  LucideCircleAlert,
+  LucideIcon,
+  LucideInfo,
+  LucideTriangleAlert,
+  LucideX,
+} from '@lucide/angular';
+
+import { IconComponent } from '../icon/icon.component';
+
+const SNACKBAR_ICONS: Record<SnackbarType, LucideIcon> = {
+  success: LucideBadgeCheck,
+  error: LucideCircleAlert,
+  warning: LucideTriangleAlert,
+  info: LucideInfo,
 };
 
 @Component({
   selector: 'app-snackbar',
   imports: [
-    MatIconModule,
     MatButtonModule,
     MatSnackBarLabel,
     MatSnackBarActions,
     MatSnackBarAction,
+    IconComponent,
   ],
   template: `
     <div class="flex flex-col w-full relative pl-2 pb-3 pt-2.5">
       <div class="flex items-center h-6.5">
-        <div matSnackBarLabel class="flex items-center gap-2 px-2! py-0!">
-          <mat-icon class="snackbar-icon">{{ icon }}</mat-icon>
+        <div matSnackBarLabel class="flex items-center gap-2 px-1! py-0!">
+          <mat-icon appIcon [icon]="icon" class="snackbar-icon" />
+
           <span>{{ data.title }}</span>
         </div>
         <div matSnackBarActions>
           <button matSnackBarAction matIconButton (click)="ref.dismissWithAction()">
-            <mat-icon>close</mat-icon>
+            <mat-icon appIcon [icon]="icons.x" />
           </button>
         </div>
       </div>
@@ -61,4 +72,8 @@ export class SnackbarComponent {
   protected readonly ref = inject(MatSnackBarRef<SnackbarComponent>);
 
   protected readonly icon = SNACKBAR_ICONS[this.data.type];
+
+  protected readonly icons = {
+    x: LucideX,
+  };
 }

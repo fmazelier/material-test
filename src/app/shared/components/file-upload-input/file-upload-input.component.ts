@@ -21,9 +21,31 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+import {
+  LucideBadgeQuestionMark,
+  LucideCircleAlert,
+  LucideCircleX,
+  LucideCloudUpload,
+  LucideFile,
+  LucideFileArchive,
+  LucideFileBraces,
+  LucideFileCode,
+  LucideFileImage,
+  LucideFileMusic,
+  LucideFileSpreadsheet,
+  LucideFileType,
+  LucideFileUp,
+  LucideFileVideoCamera,
+  LucideFolderOpen,
+  LucideIcon,
+  LucideInbox,
+  LucideX,
+} from '@lucide/angular';
+
+import { IconComponent } from '../icon/icon.component';
 
 type FileErrorType = 'maxFilesReached' | 'fileTooLarge' | 'fileTypeNotAllowed' | 'duplicateFile';
 
@@ -54,10 +76,10 @@ export const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB;
   imports: [
     MatCardModule,
     MatButtonModule,
-    MatIconModule,
     MatTooltipModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    IconComponent,
   ],
   providers: [
     {
@@ -90,6 +112,17 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
   readonly uploadTriggered = output<File[]>();
 
   private readonly fileInputRef = viewChild.required<ElementRef<HTMLInputElement>>('fileInputRef');
+
+  protected readonly icons = {
+    cloudUpload: LucideCloudUpload,
+    folderOpen: LucideFolderOpen,
+    fileUp: LucideFileUp,
+    x: LucideX,
+    circleX: LucideCircleX,
+    questionMark: LucideBadgeQuestionMark,
+    circleAlert: LucideCircleAlert,
+    inbox: LucideInbox,
+  };
 
   protected readonly files = signal<File[]>([]);
   protected readonly isDragging = signal(false);
@@ -250,21 +283,56 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
     return `${(bytes / BYTES_PER_MB).toFixed(1)} Mo`;
   }
 
-  getFileIcon(file: File): string {
-    if (file.type.startsWith('image/')) return 'image';
-    if (file.type.startsWith('video/')) return 'videocam';
-    if (file.type.startsWith('audio/')) return 'audiotrack';
-    if (file.type === 'application/pdf') return 'picture_as_pdf';
+  getFileIcon(file: File): LucideIcon {
+    const { type, name } = file;
+
+    if (type.startsWith('image/')) return LucideFileImage;
+    if (type.startsWith('video/')) return LucideFileVideoCamera;
+    if (type.startsWith('audio/')) return LucideFileMusic;
+    if (type === 'application/pdf') return LucideFile;
     if (
-      file.type.includes('spreadsheet') ||
-      file.name.endsWith('.xlsx') ||
-      file.name.endsWith('.csv')
+      type.includes('spreadsheet') ||
+      name.endsWith('.xlsx') ||
+      name.endsWith('.xls') ||
+      name.endsWith('.ods') ||
+      name.endsWith('.csv')
     )
-      return 'table_chart';
-    if (file.type.includes('zip') || file.type.includes('compressed')) {
-      return 'folder_zip';
-    }
-    return 'insert_drive_file';
+      return LucideFileSpreadsheet;
+    if (
+      type.includes('wordprocessingml') ||
+      type.includes('msword') ||
+      name.endsWith('.docx') ||
+      name.endsWith('.doc') ||
+      name.endsWith('.odt') ||
+      name.endsWith('.rtf')
+    )
+      return LucideFileType;
+
+    if (
+      type.includes('javascript') ||
+      type.includes('typescript') ||
+      type.includes('html') ||
+      type.includes('css') ||
+      type.includes('xml') ||
+      ['.ts', '.js', '.jsx', '.tsx', '.html', '.css', '.scss', '.py', '.java', '.php', '.sh'].some(
+        (ext) => name.endsWith(ext)
+      )
+    )
+      return LucideFileCode;
+
+    if (type === 'application/json' || name.endsWith('.json')) return LucideFileBraces;
+
+    if (
+      type.includes('zip') ||
+      type.includes('compressed') ||
+      type.includes('tar') ||
+      type.includes('gzip') ||
+      type.includes('7z') ||
+      ['.zip', '.tar', '.gz', '.tgz', '.rar', '.7z', '.bz2'].some((ext) => name.endsWith(ext))
+    )
+      return LucideFileArchive;
+
+    return LucideFile;
   }
 
   /** Adds incoming files after validation */

@@ -4,8 +4,8 @@ mat-toolbar {
 }
 
 a.mat-mdc-list-item.active {
-  background-color: var(--mat-sys-secondary-container);
-  color: var(--mat-sys-on-secondary-container);
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
 }
 
 :host(.is-mobile) {
@@ -30,8 +30,21 @@ mat-sidenav {
     width 400ms cubic-bezier(0.25, 0.8, 0.25, 1),
     transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 
+  mat-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 0;
+    transition: padding 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+    will-change: padding;
+  }
+
   &.collapsed {
     width: $collapsed-width;
+  }
+
+  &:not(.collapsed) mat-nav-list {
+    padding: 10px 14px;
   }
 }
 

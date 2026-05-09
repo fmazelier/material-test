@@ -17,16 +17,16 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
     >
       <div class="flex flex-col items-center lg:items-start">
         <h1 class="text-4xl lg:text-5xl mb-0 animate-fade-in-up">
-          Masquez les mots importants
-          <span class="animated-gradient-text">de vos PDF</span>
+          Masquez les données sensibles de vos
+          <span class="animated-gradient-text">documents PDF</span>
         </h1>
 
         <p
           class="text-lg lg:text-xl mb-8 lg:mb-0 mt-8
          text-on-surface/60 animate-fade-in-up [animation-delay:150ms]!"
         >
-          Protégez les informations sensibles dans vos documents PDF avec notre outil de masquage de
-          mots intelligent.
+          Importez un fichier, sélectionnez les termes à anonymiser et générez une version sécurisée
+          en quelques secondes.
         </p>
 
         <a
@@ -36,7 +36,7 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
           matButton="filled"
           routerLink="/pdf-masking-form"
         >
-          Commencer
+          Démarrer
         </a>
       </div>
 

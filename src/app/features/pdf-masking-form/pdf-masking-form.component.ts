@@ -12,12 +12,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { MatStepper, MatStepperModule, StepperOrientation } from '@angular/material/stepper';
 import { finalize, switchMap } from 'rxjs';
 
 import { FileUploadInputComponent } from '@shared/components/file-upload-input/file-upload-input.component';
+import { IconComponent } from '@shared/components/icon/icon.component';
 import { SnackbarService } from '@shared/services/snackbar.service';
+
+import { LucideCircleCheckBig, LucidePencil } from '@lucide/angular';
 
 import { PdfMasking } from './services/pdf-masking.abstract';
 
@@ -31,7 +33,7 @@ const STEPPER_MIN_WIDTH_FOR_HORIZONTAL = 600;
     MatButtonModule,
     ReactiveFormsModule,
     MatCardModule,
-    MatIconModule,
+    IconComponent,
   ],
   templateUrl: './pdf-masking-form.component.html',
   styles: `
@@ -60,6 +62,10 @@ export default class PdfMaskingFormComponent {
     this.stepperOrientation.set(orientation);
   });
 
+  protected readonly icons = {
+    check: LucideCircleCheckBig,
+    pencil: LucidePencil,
+  };
   protected readonly stepperOrientation = signal<StepperOrientation>('horizontal');
 
   protected readonly textControl = new FormControl<File[]>([], {

@@ -1,0 +1,13 @@
+// needed for Lucid icons to work properly as mat-icon components
+mat-icon[appIcon] {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+mat-icon[appIcon] svg {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+}

@@ -1,7 +1,7 @@
 <header>
   <mat-toolbar class="w-full px-2!">
     <button matIconButton (click)="updateSidenavState()" aria-label="Toggle sidebar">
-      <mat-icon>menu</mat-icon>
+      <mat-icon appIcon [icon]="icons.menu" />
     </button>
 
     <h1>AnOS PDF Transformation</h1>
@@ -10,9 +10,9 @@
 
     <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
       @if (themeService.isDark()) {
-        <mat-icon>light_mode</mat-icon>
+        <mat-icon appIcon [icon]="icons.sun" />
       } @else {
-        <mat-icon>dark_mode</mat-icon>
+        <mat-icon appIcon [icon]="icons.moon" />
       }
     </button>
   </mat-toolbar>
@@ -35,7 +35,7 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
         >
-          <mat-icon matListItemIcon>{{ link.icon }}</mat-icon>
+          <mat-icon appIcon matListItemIcon [icon]="link.icon" />
           <span matListItemTitle>{{ link.label }}</span>
         </a>
       }
