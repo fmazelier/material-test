@@ -105,6 +105,86 @@ npm install
 
 ---
 
+## Styles & Icônes
+
+_TODO : ajouter une section sur la configuration Tailwind CSS 4 et le thème Angular Material custom._
+
+### Organisation des styles
+
+Les styles du projet sont répartis dans `src/styles/` :
+
+```
+/styles
+  /fonts       # Gestion des différents polices
+  /global      # Reset custom, animations globales
+  /theme       # Thème Angular Material + tokens Tailwind CSS 4
+styles.css   # Point d'entrée principal
+```
+
+Les styles **globaux** (reset, fixes de compatibilité, styles partagés entre composants) vont dans `src/styles/global/`. Les styles **propres à un composant** restent dans le fichier `.scss` du composant lui-même avec l'encapsulation par défaut (`Emulated`), sauf cas justifié.
+
+### Bibliothèque d'icônes — Lucide
+
+Le projet utilise [`@lucide/angular`](https://lucide.dev/guide/angular/getting-started) à la place des icônes Angular Material. Ce choix repose sur plusieurs raisons :
+
+- **Tree-shaking natif** : seules les icônes explicitement importées sont incluses dans le bundle final, contrairement à la font Material Icons qui charge l'intégralité du catalogue.
+- **Design system cohérent** : +1 400 icônes avec un stroke uniforme et une grille pixel-perfect.
+- **Stack-compatible** : composants standalone, zoneless-friendly, signals-ready.
+
+#### Composant wrapper `IconComponent`
+
+Pour garantir une compatibilité maximale avec Angular Material (boutons, ripple, layout), Lucide n'est **pas utilisé directement** mais via un composant wrapper qui s'intègre nativement dans l'écosystème Material.
+
+> **Pourquoi `mat-icon[appIcon]` comme sélecteur ?**
+> En utilisant `mat-icon` comme élément hôte avec une directive attribut, le composant est reconnu nativement par Angular Material pour l'alignement dans les boutons, le calcul du ripple et les APIs `iconPositionEnd` / `iconPositionStart`. Utiliser un sélecteur générique `mat-icon` seul remplacerait le composant `MatIcon` de Material dans toute l'application — à éviter absolument.
+
+> **Pourquoi `ViewEncapsulation.None` ?**
+> Le template contient un `<svg>` raw. Avec l'encapsulation par défaut (`Emulated`), Angular ajouterait un attribut `_ngcontent-xxx` sur le SVG, ce qui empêcherait les styles globaux de le cibler. `ViewEncapsulation.None` est ici intentionnel.
+
+#### Styles globaux associés
+
+Les styles du wrapper sont centralisés dans `src/styles/global/_icons.scss` (et non dans le composant, pour éviter l'injection répétée dans le DOM) :
+
+#### Utilisation
+
+Importer les icônes nécessaires depuis `@lucide/angular` dans chaque composant qui les utilise — c'est la contrepartie du tree-shaking :
+
+```typescript
+import { IconComponent } from '@shared/components/icon/icon.component';
+
+import { LucideFileText, LucideHouse, LucideMenu } from '@lucide/angular';
+
+@Component({
+  imports: [IconComponent],
+  // ...
+})
+export class MyComponent {
+  protected readonly icons = {
+    menu: LucideMenu,
+    home: LucideHouse,
+    file: LucideFileText,
+  };
+}
+```
+
+```html
+<!-- Taille gérée par le contexte Material (18px dans un bouton, 24px ailleurs) -->
+<button matButton="outlined">
+  <mat-icon appIcon [icon]="icons.file" />
+  Parcourir
+</button>
+
+<!-- Icon button -->
+<button matIconButton aria-label="Ouvrir le menu">
+  <mat-icon appIcon [icon]="icons.menu" />
+</button>
+
+<!-- Taille explicite si besoin -->
+<mat-icon appIcon [icon]="icons.home" [size]="32" />
+```
+
+---
+
 ## Scripts disponibles
 
 ### Développement
