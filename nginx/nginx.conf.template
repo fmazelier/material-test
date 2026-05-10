@@ -2,13 +2,14 @@ server {
   listen 80;
   server_name _;
 
-  # ─── Compression ───────────────────────────────────────────────────
-  # Enable gzip for text-based assets; skip small files under 1KB
-  # gzip_vary tells proxies/CDNs to cache both compressed and uncompressed versions
   gzip on;
   gzip_vary on;
-  gzip_types text/plain text/css application/javascript application/json
-             image/svg+xml application/wasm;
+  gzip_types text/plain
+              text/css
+              application/javascript
+              application/json
+              image/svg+xml
+              application/wasm;
   gzip_min_length 1024;
 
   # ─── index.html — never cache ──────────────────────────────────────
