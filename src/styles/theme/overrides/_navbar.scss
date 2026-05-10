@@ -4,7 +4,18 @@
   @include mat.sidenav-overrides(
     (
       container-shape: var(--mat-sys-corner-none),
-      container-divider-color: color-mix(in srgb, var(--mat-sys-outline) 30%, transparent),
+      content-background-color: var(--mat-sys-surface-container-lowest),
+      container-background-color: var(--mat-sys-surface),
     )
   );
+}
+
+@media (width <= 600px) {
+  :root {
+    @include mat.sidenav-overrides(
+      (
+        container-shape: var(--mat-sys-corner-large),
+      )
+    );
+  }
 }

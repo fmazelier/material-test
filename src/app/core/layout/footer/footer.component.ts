@@ -5,9 +5,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   selector: 'app-footer',
   imports: [NgOptimizedImage, DatePipe],
   template: `
-    <footer
-      class="border-on-surface/20 flex flex-col items-center gap-2 border-t p-4 @[400px]:flex-row @[400px]:justify-between"
-    >
+    <footer class="flex flex-col items-center gap-2 p-4 @[400px]:flex-row @[400px]:justify-between">
       <a
         class="@[400px]:order-2"
         href="https://www.safran-group.com/companies/safran-aircraft-engines"
