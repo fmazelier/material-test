@@ -38,8 +38,8 @@ const SNACKBAR_ICONS: Record<SnackbarType, LucideIcon> = {
     IconComponent,
   ],
   template: `
-    <div class="flex flex-col w-full relative pl-2 pb-3 pt-2.5">
-      <div class="flex items-center h-6.5">
+    <div class="relative flex w-full flex-col pt-2.5 pb-3 pl-2">
+      <div class="flex h-6.5 items-center">
         <div matSnackBarLabel class="flex items-center gap-2 px-1! py-0!">
           <mat-icon appIcon [icon]="icon" class="snackbar-icon" />
 
@@ -53,12 +53,12 @@ const SNACKBAR_ICONS: Record<SnackbarType, LucideIcon> = {
       </div>
 
       @if (data.message) {
-        <div class="px-10 text-on-surface whitespace-pre-line">{{ data.message }}</div>
+        <div class="text-on-surface px-10 whitespace-pre-line">{{ data.message }}</div>
       }
 
       @if (data.duration && data.duration > 0) {
         <div
-          class="absolute bottom-0 left-0 h-1 w-full snack-progress-bar"
+          class="snack-progress-bar absolute bottom-0 left-0 h-1 w-full"
           [attr.data-duration]="data.duration"
         ></div>
       }

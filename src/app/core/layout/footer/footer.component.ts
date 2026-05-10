@@ -6,9 +6,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   imports: [NgOptimizedImage, DatePipe],
   template: `
     <footer
-      class="p-4 border-t border-on-surface/20
-      flex flex-col items-center gap-2
-      @[400px]:flex-row @[400px]:justify-between"
+      class="border-on-surface/20 flex flex-col items-center gap-2 border-t p-4 @[400px]:flex-row @[400px]:justify-between"
     >
       <a
         class="@[400px]:order-2"

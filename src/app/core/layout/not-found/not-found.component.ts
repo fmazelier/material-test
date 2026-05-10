@@ -9,7 +9,7 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
   imports: [LottieDirective, RouterLink, MatButtonModule],
   template: `
     <h1 class="text-6xl">Page non trouvée</h1>
-    <div class="max-w-200 mb-8" appLottie [options]="lottieOptions"></div>
+    <div class="mb-8 max-w-200" appLottie [options]="lottieOptions"></div>
     <a matButton="filled" routerLink="/">Retour à l'accueil</a>
   `,
   styles: ``,
