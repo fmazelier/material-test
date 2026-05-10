@@ -25,8 +25,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import {
-  LucideBadgeQuestionMark,
   LucideCircleAlert,
+  LucideCircleQuestionMark,
   LucideCircleX,
   LucideCloudUpload,
   LucideFile,
@@ -119,7 +119,7 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
     fileUp: LucideFileUp,
     x: LucideX,
     circleX: LucideCircleX,
-    questionMark: LucideBadgeQuestionMark,
+    questionMark: LucideCircleQuestionMark,
     circleAlert: LucideCircleAlert,
     inbox: LucideInbox,
   };
