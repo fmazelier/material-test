@@ -1,10 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const log = (msg) => process.stdout.write(`  ${msg}\n`);
-const fail = (msg) => {
-  process.stderr.write(`  ❌  ${msg}\n`);
-  process.exit(1);
-};
+import { fail, log } from './logger.mjs';
 
 log('');
 log('📦 Preparing build...');

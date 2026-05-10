@@ -1,19 +1,13 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const log = (msg) => process.stdout.write(`  ${msg}\n`);
-const fail = (msg) => {
-  process.stderr.write(`  ❌  ${msg}\n`);
-  process.exit(1);
-};
+import { fail, log } from './logger.mjs';
 
 log('');
 log('🔍 Reading base href from built index.html...');
 log('');
 
-const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
-const appName = pkg.name;
-
+const appName = readFileSync('./.app-name', 'utf8');
 const indexPath = resolve(`./dist/${appName}/browser/index.html`);
 
 let html;
