@@ -72,11 +72,8 @@
           [disabled]="disabled"
           [matTooltip]="submitButtonTooltilpLabel()"
         >
-          @if (loading() && !disabled) {
-            <mat-spinner diameter="20" />
-          } @else {
-            <mat-icon appIcon [icon]="icons.cloudUpload" />
-          }
+          <mat-icon appIcon [icon]="icons.cloudUpload" [loading]="!!(loading() && !disabled)" />
+
           @let buttonLabel = files().length > 1 ? 'les fichiers' : 'le fichier';
           Importer {{ buttonLabel }}
         </button>
