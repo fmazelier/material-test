@@ -13,7 +13,7 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
       class="flex flex-col items-center justify-center text-center lg:grid lg:grid-cols-2 lg:items-center lg:justify-center lg:gap-12 lg:text-left"
     >
       <div class="flex flex-col items-center lg:items-start">
-        <h1 class="animate-fade-in-up mb-0 text-4xl text-balance lg:text-5xl">
+        <h1 class="animate-fade-in-up mb-0 text-4xl font-semibold text-balance lg:text-5xl">
           Masquez les données sensibles de vos
           <span class="animated-gradient-text">documents PDF</span>
         </h1>

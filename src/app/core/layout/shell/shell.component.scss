@@ -5,14 +5,17 @@ $transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 
 mat-toolbar {
   color: var(--mat-sys-on-surface-variant);
-
-  // color: var(--mat-sys-primary);
-  // background: var(--mat-sys-primary-container);
+  border-bottom: 1px solid oklch(from var(--mat-sys-on-surface-variant) l c h / 8%);
+  background: var(--mat-sys-surface-container-lowest);
 }
 
 a.mat-mdc-list-item.active {
   background-color: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
+
+  mat-icon,
+  .mat-mdc-list-item-title {
+    color: var(--mat-sys-on-primary-container) !important;
+  }
 }
 
 mat-sidenav-content {
