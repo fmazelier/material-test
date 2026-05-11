@@ -11,6 +11,9 @@ Application Angular **21** configurée avec Angular Material, Tailwind CSS 4, et
 - [Prérequis](#prérequis)
 - [Installation](#installation)
 - [Architecture du projet](#architecture-du-projet)
+- [Configuration applicative](#configuration-applicative)
+- [Gestion des erreurs HTTP](#gestion-des-erreurs-http)
+- [Styles & Icônes](#styles&icônes)
 - [Scripts disponibles](#scripts-disponibles)
 - [Qualité du code](#qualité-du-code)
 - [Hooks Git (Husky + lint-staged)](#hooks-git-husky--lint-staged)
@@ -102,6 +105,159 @@ npm install
 - **`core/`** — services instanciés une seule fois (`providedIn: 'root'`), interceptors, guards et layout applicatif.
 - **`shared/components/`** — composants **strictement présentationnels** : aucun import de service métier n'est autorisé ici.
 - **`features/`** — chaque feature est lazy-loadée via son propre `*.routes.ts`. La hiérarchie des dossiers dans `/pages` reste **plate** ; c'est le fichier de routes qui définit l'imbrication parent/enfant via `children[]`, pas la structure de dossiers.
+
+---
+
+
+## Configuration applicative
+
+La configuration de l'application est chargée **au démarrage**, avant le rendu de la moindre route, via `provideAppInitializer()`. Si la configuration est invalide ou inaccessible, l'application **ne démarre pas** — ce qui garantit qu'aucun composant ne s'exécute avec une config manquante.
+
+### Chargement bloquant au bootstrap
+
+```typescript
+// app.config.ts
+provideAppInitializer(() => {
+  const configService = inject(ConfigService);
+  return configService.loadConfig(); // Promise — Angular attend la résolution avant de bootstrapper
+}),
+```
+
+`provideAppInitializer()` est la syntaxe moderne (Angular 19+) remplaçant `APP_INITIALIZER`. Angular attend la résolution de la Promise retournée avant d'initialiser le router et d'afficher quoi que ce soit.
+
+### Source de configuration
+
+La configuration est lue depuis un fichier **`config.json` servi statiquement** (non bundlé), ce qui permet de modifier les paramètres de déploiement (URL d'API, version, date de déploiement) **sans recompiler l'application**.
+
+```
+public/
+  config.json        ← lu au runtime via fetch(), non inclus dans le bundle
+```
+
+Exemple de `config.json` :
+
+```json
+{
+  "apiUrl": "https://api.example.com",
+  "version": "1.4.2",
+  "deployedAt": "2026-05-06T14:30:00Z"
+}
+```
+
+### Validation stricte à l'entrée
+
+Avant d'être assignée, il y a quatre niveaux de contrôle dans l'ordre suivant :
+
+| Contrôle                          | Erreur levée                                                       |
+| --------------------------------- | ------------------------------------------------------------------ |
+| Échec réseau (`fetch` throws)     | `[Config] Network error while loading config.json`                 |
+| Réponse HTTP non-OK               | `[Config] Failed to load config.json (HTTP 404)`                   |
+| Format JSON non respecté          | `[Config] config.json is not a valid JSON object`                  |
+| Champs requis manquants ou `null` | `[Config] Missing required fields in config.json: apiUrl, version` |
+
+Les champs requis sont déclarés dans `REQUIRED_KEYS : (keyof AppConfig)[]` — étendre la liste suffit à rendre un nouveau champ obligatoire sans modifier la logique de validation.
+
+### Accès à la configuration dans les services
+
+Une fois chargée, la config est accessible en injection directe via `ConfigService` :
+
+```typescript
+// Dans n'importe quel service
+private readonly config = inject(ConfigService);
+
+// Accès typé par clé générique
+const url = this.config.get('apiUrl');    // string
+
+// Raccourci pour les clés fréquentes
+const url = this.config.apiUrl;           // string
+```
+
+> L'assertion non-null (`config!: AppConfig`) est intentionnelle : la config étant garantie présente après le bootstrap, le contrôle de nullité à chaque accès serait du bruit inutile.
+
+### Banner de démarrage
+
+Au bootstrap, un banner est affiché dans la console avec le nom de l'app (lu depuis `package.json`), sa version et sa date de déploiement formatée en heure de Paris :
+
+```
+ my-app  v1.4.2  deployed on 06 May 2026 at 16:30
+```
+
+En l'absence de `deployedAt` (environnement local), le label affiche `local server` à la place.
+
+---
+
+## Gestion des erreurs HTTP
+
+L'application centralise la gestion des erreurs HTTP via une architecture en deux couches : un intercepteur fonctionnel global et un mécanisme d'opt-out granulaire par requête.
+
+### Architecture
+
+```
+Requête HTTP
+     │
+     ▼
+HttpErrorInterceptor          ← couche globale
+     │
+     ├─ SKIP_GLOBAL_ERROR_HANDLER = true  →  délégation au service appelant
+     ├─ IGNORED_ERROR_STATUSES = [x, y]   →  codes ignorés, reste géré globalement
+     │
+     ▼
+SnackbarService.error()       ← affichage utilisateur
+     │
+     ▼
+throwError(() => error)       ← l'erreur reste propagée pour les appelants
+```
+
+### Intercepteur global (`http-error.interceptor.ts`)
+
+Toutes les requêtes HTTP passent par `httpErrorInterceptor`, enregistré dans `app.config.ts` via `withInterceptors([httpErrorInterceptor])`.
+
+L'intercepteur :
+
+- affiche un message utilisateur adapté au code HTTP (`HttpStatusCode` natif Angular)
+- distingue les erreurs réseau (`status === 0`) des erreurs serveur
+- **repropage toujours l'erreur** (`throwError(() => error)`) pour ne pas bloquer les appelants
+
+### Opt-out par requête (`HttpContext`)
+
+Deux tokens `HttpContextToken` permettent de désactiver ou de filtrer le comportement global sur une requête spécifique :
+
+| Token                       | Type                         | Comportement                                                        |
+| --------------------------- | ---------------------------- | ------------------------------------------------------------------- |
+| `SKIP_GLOBAL_ERROR_HANDLER` | `boolean` (défaut : `false`) | Désactive entièrement l'intercepteur pour cette requête             |
+| `IGNORED_ERROR_STATUSES`    | `number[]` (défaut : `[]`)   | Ignore certains codes HTTP — le reste est toujours géré globalement |
+
+**Exemple — message d'erreur entièrement personnalisé :**
+
+```typescript
+this.http
+  .post('/api/upload', formData, {
+    context: new HttpContext().set(SKIP_GLOBAL_ERROR_HANDLER, true),
+  })
+  .pipe(
+    catchError((err) => {
+      this.snackbarService.error('Message personnalisé pour cet appel.');
+      return throwError(() => err);
+    })
+  );
+```
+
+**Exemple — certains codes gérés localement, le reste globalement :**
+
+```typescript
+this.http
+  .get('/api/resource', {
+    context: new HttpContext().set(IGNORED_ERROR_STATUSES, [HttpStatusCode.NotFound]),
+  })
+  .pipe(
+    catchError((err: HttpErrorResponse) => {
+      if (err.status === HttpStatusCode.NotFound) {
+        // gestion locale du 404
+      }
+      return throwError(() => err);
+    })
+  );
+```
 
 ---
 
