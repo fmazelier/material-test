@@ -1,1 +1,9 @@
 https://www.madewithangular.com/sites
+https://github.com/flatlogic/angular-material-admin-full
+https://flatlogic.com/templates/angular-material-admin-full/demo
+https://github.dev/ng-matero/ng-matero
+https://ng-matero.github.io/ng-matero/dashboard
+https://ui.angular-material.dev/templates/dashboard
+https://template-dashboard.angular-material.dev/overview
+https://taiga-ui.dev/components
+https://template-database.angular-material.dev/changelog
