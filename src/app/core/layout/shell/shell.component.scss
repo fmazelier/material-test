@@ -1,65 +1,21 @@
 $collapsed-width: 58px;
 $uncollapsed-width: 250px;
-$transition-duration: 400ms !important;
-$transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-
-mat-toolbar {
-  color: var(--mat-sys-on-surface-variant);
-  border-bottom: 1px solid oklch(from var(--mat-sys-on-surface-variant) l c h / 8%);
-  background: var(--mat-sys-surface-container-lowest);
-}
-
-a.mat-mdc-list-item.active {
-  background-color: var(--mat-sys-primary-container);
-
-  mat-icon,
-  .mat-mdc-list-item-title {
-    color: var(--mat-sys-on-primary-container) !important;
-  }
-}
-
-mat-sidenav-content {
-  padding-top: var(--mat-toolbar-standard-height, 64px);
-}
-
-:host(.is-mobile) {
-  mat-toolbar {
-    position: fixed;
-    z-index: 2;
-  }
-
-  mat-sidenav-container {
-    flex: 1 0 auto;
-  }
-
-  mat-sidenav-content {
-    padding-top: var(--mat-toolbar-mobile-height, 56px);
-  }
-
-  header {
-    left: 0;
-  }
-}
-
-header {
-  left: $uncollapsed-width;
-  will-change: left;
-  transition-property: left;
-  transition-duration: $transition-duration;
-  transition-timing-function: $transition-timing-function;
-}
+$transition-duration: 400ms;
+$transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
 
 mat-sidenav {
   width: $uncollapsed-width;
   will-change: width, transform;
-  transition-property: width, transform !important;
-  transition-duration: $transition-duration;
-  transition-timing-function: $transition-timing-function;
+  transition:
+    width $transition-duration $transition-timing-function,
+    transform $transition-duration $transition-timing-function !important;
 
-  mat-nav-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  mat-nav-list a.mat-mdc-list-item.active {
+    background-color: var(--mat-sys-primary-container);
+
+    mat-icon {
+      color: var(--mat-sys-primary) !important;
+    }
   }
 
   &.collapsed {
@@ -68,15 +24,41 @@ mat-sidenav {
 }
 
 mat-sidenav-content {
+  padding-top: var(--mat-toolbar-standard-height, 64px);
+
+  mat-toolbar {
+    position: fixed;
+    left: $uncollapsed-width;
+    top: 0;
+    right: 0;
+    z-index: 100;
+    background: transparent;
+    color: var(--mat-sys-on-surface-variant);
+    border-bottom: 1px solid oklch(from var(--mat-sys-on-surface-variant) l c h / 8%);
+    backdrop-filter: blur(12px);
+    will-change: left;
+    transition: left $transition-duration $transition-timing-function !important;
+  }
+
   &.collapsed {
     margin-left: $collapsed-width !important;
 
-    header {
+    mat-toolbar {
       left: $collapsed-width;
     }
   }
 
   &.expanded {
     margin-left: $uncollapsed-width !important;
+  }
+}
+
+:host(.is-mobile) {
+  mat-toolbar {
+    left: 0;
+  }
+
+  mat-sidenav-content {
+    padding-top: var(--mat-toolbar-mobile-height, 56px);
   }
 }

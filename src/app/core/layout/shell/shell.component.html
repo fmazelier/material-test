@@ -6,7 +6,7 @@
     [class.collapsed]="!isMobile() && isCollapsed()"
     [fixedInViewport]="isMobile()"
   >
-    <mat-nav-list (click)="isMobile() && sidenav.close()">
+    <mat-nav-list class="flex flex-col gap-2" (click)="isMobile() && sidenav.close()">
       <button
         class="mt-1.25 ml-2"
         matIconButton
@@ -15,6 +15,7 @@
       >
         <mat-icon appIcon [icon]="icons.menu" />
       </button>
+
       @for (link of navLinks; track link.href) {
         <a
           mat-list-item
@@ -35,26 +36,21 @@
     [class.expanded]="!isMobile() && !isCollapsed()"
   >
     <main class="relative mx-auto flex w-full max-w-400 flex-1 flex-col p-4 lg:p-12">
-      <header class="fixed top-0 right-0 left-0">
-        <mat-toolbar class="w-full px-2!">
-          @if (isMobile()) {
-            <button matIconButton (click)="updateSidenavState()" aria-label="Toggle sidebar">
-              <mat-icon appIcon [icon]="icons.menu" />
-            </button>
-          }
-          <h1>AnOS PDF Transformation</h1>
-
-          <div class="flex-1"></div>
-
-          <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
-            @if (themeService.isDark()) {
-              <mat-icon appIcon [icon]="icons.sun" />
-            } @else {
-              <mat-icon appIcon [icon]="icons.moon" />
-            }
+      <mat-toolbar class="w-auto! px-2!">
+        @if (isMobile()) {
+          <button matIconButton (click)="updateSidenavState()" aria-label="Toggle sidebar">
+            <mat-icon appIcon [icon]="icons.menu" />
           </button>
-        </mat-toolbar>
-      </header>
+        }
+
+        <h1>AnOS</h1>
+
+        <div class="flex-1"></div>
+
+        <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
+          <mat-icon appIcon [icon]="themeService.isDark() ? icons.sun : icons.moon" />
+        </button>
+      </mat-toolbar>
       <router-outlet />
     </main>
 
