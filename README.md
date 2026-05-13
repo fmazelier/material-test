@@ -476,6 +476,7 @@ Ajouter ces entr√©es dans votre `settings.json` **utilisateur** (ctrl+Shift+P ‚Ü
   "js/ts.tsserver.experimental.enableProjectDiagnostics": false,
   "editor.bracketPairColorization.enabled": true,
   "files.eol": "\n",
-  "js/ts.updateImportsOnFileMove.enabled": "always"
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+    "tailwindCSS.experimental.configFile": "src/styles/theme/tailwind.css"
 }
 ```

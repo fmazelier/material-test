@@ -13,8 +13,7 @@
     "format": "prettier \"src/**/*.{ts,html,scss,json}\" --write",
     "format:check": "prettier \"src/**/*.{ts,html,scss,json}\" --check",
     "prepare": "husky",
-    "release": "node scripts/release.mjs",
-    "generate:mat-tailwind-snippets": "node scripts/generate-mat-tailwind-snippets.mjs"
+    "release": "node scripts/release.mjs"
   },
   "engines": {
     "node": ">=24",
