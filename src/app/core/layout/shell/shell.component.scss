@@ -1,10 +1,8 @@
-$collapsed-width: 58px;
-$uncollapsed-width: 250px;
 $transition-duration: 400ms;
 $transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
 
 mat-sidenav {
-  width: $uncollapsed-width;
+  width: var(--sidebar-expanded);
   will-change: width, transform;
   transition:
     width $transition-duration $transition-timing-function,
@@ -19,7 +17,7 @@ mat-sidenav {
   }
 
   &.collapsed {
-    width: $collapsed-width;
+    width: var(--sidebar-collapsed);
   }
 }
 
@@ -28,10 +26,10 @@ mat-sidenav-content {
 
   mat-toolbar {
     position: fixed;
-    left: $uncollapsed-width;
+    left: var(--sidebar-expanded);
     top: 0;
     right: 0;
-    z-index: 100;
+    z-index: 10;
     background: transparent;
     color: var(--mat-sys-on-surface-variant);
     border-bottom: 1px solid oklch(from var(--mat-sys-on-surface-variant) l c h / 8%);
@@ -41,15 +39,15 @@ mat-sidenav-content {
   }
 
   &.collapsed {
-    margin-left: $collapsed-width !important;
+    margin-left: var(--sidebar-collapsed) !important;
 
     mat-toolbar {
-      left: $collapsed-width;
+      left: var(--sidebar-collapsed);
     }
   }
 
   &.expanded {
-    margin-left: $uncollapsed-width !important;
+    margin-left: var(--sidebar-expanded) !important;
   }
 }
 
