@@ -7,4 +7,9 @@
       filled-label-text-color: var(--mat-sys-on-error),
     )
   );
+  @include mat.icon-button-overrides(
+    (
+      icon-color: var(--mat-sys-error),
+    )
+  );
 }

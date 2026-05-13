@@ -1,51 +1,55 @@
-<mat-stepper linear [orientation]="stepperOrientation()">
-  <mat-step [stepControl]="textControl">
-    <ng-template matStepLabel>Mots-clés</ng-template>
+<mat-card class="overflow-hidden">
+  <mat-stepper linear [orientation]="stepperOrientation()">
+    <mat-step [stepControl]="textControl">
+      <ng-template matStepLabel>Mots-clés</ng-template>
 
-    <app-file-upload-input
-      label="Fichier texte contenant les mots à masquer"
-      additionalInformations="Un mot par ligne — les occurrences exactes seront masquées dans le PDF"
-      accept=".txt"
-      [loading]="sendingText()"
-      showSubmitButton
-      dragDropEnabled
-      (uploadTriggered)="uploadText($event[0])"
-      [formControl]="textControl"
-    />
-  </mat-step>
+      <app-file-upload-input
+        label="Fichier texte contenant les mots à masquer"
+        additionalInformations="Un mot par ligne — les occurrences exactes seront masquées dans le PDF - Si des mots sont déjà en mémoire, ils seront remplacés"
+        accept=".txt"
+        [loading]="sendingText()"
+        showSubmitButton
+        dragDropEnabled
+        (uploadTriggered)="uploadVariants($event[0])"
+        [formControl]="textControl"
+      />
 
-  <mat-step [stepControl]="pdfControl">
-    <ng-template matStepLabel>Document PDF</ng-template>
+      <app-variants-list />
+    </mat-step>
 
-    <app-file-upload-input
-      label="Fichier PDF à traiter"
-      loadingLabel="Traitement en cours..."
-      additionalInformations="Le téléchargement du PDF traité se lancera automatiquement après l'envoi"
-      accept=".pdf"
-      [loading]="sendingPdf()"
-      dragDropEnabled
-      showSubmitButton
-      (uploadTriggered)="uploadPdf($event[0])"
-      [formControl]="pdfControl"
-    />
-  </mat-step>
+    <mat-step [stepControl]="pdfControl">
+      <ng-template matStepLabel>Document PDF</ng-template>
 
-  <mat-step>
-    <ng-template matStepLabel>Terminé</ng-template>
-    <mat-card class="mt-4 flex flex-col items-center gap-6 px-8 py-10 text-center">
-      <mat-icon appIcon class="text-primary!" [icon]="icons.check" [size]="64" />
+      <app-file-upload-input
+        label="Fichier PDF à traiter"
+        loadingLabel="Traitement en cours..."
+        additionalInformations="Le téléchargement du PDF traité se lancera automatiquement après l'envoi"
+        accept=".pdf"
+        [loading]="sendingPdf()"
+        dragDropEnabled
+        showSubmitButton
+        (uploadTriggered)="uploadPdf($event[0])"
+        [formControl]="pdfControl"
+      />
+    </mat-step>
 
-      <div class="flex flex-col gap-2">
-        <h2 class="text-xl font-semibold">PDF traité avec succès</h2>
-        <p class="text-on-surface/60 max-w-sm">
-          Votre document a été téléchargé automatiquement. Vous pouvez traiter un nouveau fichier ou
-          revenir à l'étape précédente.
-        </p>
-      </div>
-      <div class="flex gap-3">
-        <button matButton matStepperPrevious>Changer de PDF</button>
-        <button matButton="filled" (click)="resetStepper()">Repartir de zéro</button>
-      </div>
-    </mat-card>
-  </mat-step>
-</mat-stepper>
+    <mat-step>
+      <ng-template matStepLabel>Terminé</ng-template>
+      <mat-card class="mt-4 flex flex-col items-center gap-6 px-8 py-10 text-center">
+        <mat-icon appIcon class="text-primary" [icon]="icons.check" [size]="64" />
+
+        <div class="flex flex-col gap-2">
+          <h2 class="text-xl font-semibold">PDF traité avec succès</h2>
+          <p class="text-on-surface/60 max-w-sm">
+            Votre document a été téléchargé automatiquement. Vous pouvez traiter un nouveau fichier
+            ou revenir à l'étape précédente.
+          </p>
+        </div>
+        <div class="flex gap-3">
+          <button matButton matStepperPrevious>Changer de PDF</button>
+          <button matButton="filled" (click)="resetStepper()">Repartir de zéro</button>
+        </div>
+      </mat-card>
+    </mat-step>
+  </mat-stepper>
+</mat-card>

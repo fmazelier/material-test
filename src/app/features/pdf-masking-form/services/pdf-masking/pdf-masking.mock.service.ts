@@ -1,30 +1,34 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers, camelcase */
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { delay, Observable, of, switchMap, tap, throwError } from 'rxjs';
+import { delay, EMPTY, Observable, of, switchMap, tap, throwError } from 'rxjs';
 
 import { SnackbarService } from '@shared/services/snackbar.service';
 import { triggerDownload } from '@shared/utils/download.utils';
 
-import { UploadPdfResponse } from '../models/form.model';
-
+import {
+  UploadPdfResponse,
+  VariantsPage,
+} from '@features/pdf-masking-form/models/pdf-masking.model';
 import { PdfMasking } from './pdf-masking.abstract';
 
 const MOCK_ERROR_MESSAGE = 'Une erreur interne est survenue. Veuillez réessayer plus tard.';
 
 @Injectable()
 export class PdfMaskingMockService extends PdfMasking {
-  readonly simulateUploadTextError = signal(false);
-  readonly simulateUploadPdfError = signal(false);
+  readonly simulateUploadVariantsError = signal(false);
+  readonly simulateGetVariantsError = signal(false);
+  readonly simulateDeleteVariantsError = signal(false);
+  readonly simulateUploadPdfError = signal(true);
   readonly simulateDownloadError = signal(false);
 
   private readonly snackbarService = inject(SnackbarService);
 
-  uploadTextFile(): Observable<unknown> {
-    if (this.simulateUploadTextError()) {
+  uploadVariants(): Observable<unknown> {
+    if (this.simulateUploadVariantsError()) {
       const error = new HttpErrorResponse({
         status: 500,
-        statusText: 'Mock: uploadTextFile failed',
+        statusText: 'Mock: uploadVariants failed',
       });
       return of(null).pipe(
         delay(1000),
@@ -33,6 +37,42 @@ export class PdfMaskingMockService extends PdfMasking {
       );
     }
     return of(true).pipe(delay(1000));
+  }
+
+  getVariants(): Observable<VariantsPage> {
+    if (this.simulateGetVariantsError()) {
+      const error = new HttpErrorResponse({ status: 500, statusText: 'Mock: get Variants failed' });
+      return of(null).pipe(
+        delay(2000),
+        tap(() => this.snackbarService.error(MOCK_ERROR_MESSAGE)),
+        switchMap(() => throwError(() => error))
+      );
+    }
+    return of({
+      items: ['SAFRAN', 'CONFIDENTIEL', 'MILITAIRE'],
+      page: 1,
+      page_size: 50,
+      total_items: 1,
+      total_pages: 1,
+      has_next: false,
+      has_previous: false,
+    } satisfies VariantsPage).pipe(delay(2000));
+  }
+
+  deleteVariants(): Observable<void> {
+    if (this.simulateDeleteVariantsError()) {
+      const error = new HttpErrorResponse({
+        status: 500,
+        statusText: 'Mock: delete Variants failed',
+      });
+      return of(null).pipe(
+        delay(2000),
+        tap(() => this.snackbarService.error(MOCK_ERROR_MESSAGE)),
+        switchMap(() => throwError(() => error))
+      );
+    }
+
+    return EMPTY;
   }
 
   uploadPdf(file: File): Observable<UploadPdfResponse> {

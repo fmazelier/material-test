@@ -21,7 +21,9 @@ import { SnackbarService } from '@shared/services/snackbar.service';
 
 import { LucideCircleCheckBig, LucidePencil } from '@lucide/angular';
 
-import { PdfMasking } from './services/pdf-masking.abstract';
+import { VariantsListComponent } from './components/variants-list/variants-list.component';
+import { PdfMasking } from './services/pdf-masking/pdf-masking.abstract';
+import { VariantsStoreService } from './services/variants-store/variants-store.service';
 
 const STEPPER_MIN_WIDTH_FOR_HORIZONTAL = 600;
 
@@ -34,6 +36,7 @@ const STEPPER_MIN_WIDTH_FOR_HORIZONTAL = 600;
     ReactiveFormsModule,
     MatCardModule,
     IconComponent,
+    VariantsListComponent,
   ],
   templateUrl: './pdf-masking-form.component.html',
   styles: `
@@ -49,9 +52,10 @@ const STEPPER_MIN_WIDTH_FOR_HORIZONTAL = 600;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class PdfMaskingFormComponent {
-  private readonly pdfMaskingService = inject(PdfMasking);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackbarService = inject(SnackbarService);
+  private readonly pdfMaskingService = inject(PdfMasking);
+  private readonly variantsStore = inject(VariantsStoreService);
 
   protected readonly stepper = viewChild.required(MatStepper);
   private readonly host = inject(ElementRef);
@@ -90,17 +94,18 @@ export default class PdfMaskingFormComponent {
     });
   }
 
-  uploadText(file: File): void {
+  uploadVariants(file: File): void {
     this.sendingText.set(true);
 
     this.pdfMaskingService
-      .uploadTextFile(file)
+      .uploadVariants(file)
       .pipe(
         finalize(() => this.sendingText.set(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
         this.snackbarService.success('Fichier texte reçu avec succès');
+        this.variantsStore.reset();
         this.stepper().next();
       });
   }

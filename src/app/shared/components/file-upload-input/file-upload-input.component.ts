@@ -42,6 +42,7 @@ import {
   LucideFolderOpen,
   LucideIcon,
   LucideInbox,
+  LucideTrash2,
   LucideX,
 } from '@lucide/angular';
 
@@ -102,11 +103,10 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
   accept = input('*/*');
   dragDropEnabled = input(false, { transform: booleanAttribute });
   showSubmitButton = input(false, { transform: booleanAttribute });
-  showDeleteAllButton = input(false, { transform: booleanAttribute });
   maxFiles = input(1, { transform: (v: number) => Math.max(1, v) });
   maxSizeMb = input<number>();
   additionalInformations = input<string>();
-  loading = input<boolean>();
+  loading = input<boolean>(false);
   loadingLabel = input<string>('Envoi en cours...');
 
   readonly uploadTriggered = output<File[]>();
@@ -122,6 +122,7 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
     questionMark: LucideCircleQuestionMark,
     circleAlert: LucideCircleAlert,
     inbox: LucideInbox,
+    trash: LucideTrash2,
   };
 
   protected readonly files = signal<File[]>([]);
@@ -130,6 +131,7 @@ export class FileUploadInputComponent implements ControlValueAccessor, Validator
   protected readonly uploadErrors = signal<FileUploadError[]>([]);
 
   protected readonly multiple = computed(() => this.maxFiles() > 1);
+  protected readonly showDeleteAllButton = computed(() => this.maxFiles() > 1);
 
   protected readonly acceptedTypesTooltipLabel = computed(() => {
     if (this.accept() === '*/*') return;
