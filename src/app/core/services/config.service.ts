@@ -1,6 +1,10 @@
-import { Injectable } from '@angular/core';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 
+import { ConfigLoadError } from '@core/models/config-error.model';
 import { AppConfig } from '@core/models/config.model';
+import { SKIP_GLOBAL_ERROR_HANDLER } from '@core/tokens/http-error-context.token';
 
 import { name as appName } from '../../../../package.json';
 
@@ -8,23 +12,31 @@ const REQUIRED_KEYS: (keyof AppConfig)[] = ['apiUrl', 'version'];
 
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
+  private readonly http = inject(HttpClient);
+
   // The configuration is loaded once at app startup and then kept in memory, so we can safely use a non-null assertion here
   config!: AppConfig;
 
   async loadConfig(): Promise<void> {
-    let response: Response;
+    let raw: unknown;
 
     try {
-      response = await fetch('config.json');
-    } catch {
-      throw new Error('[Config] Network error while loading config.json');
+      raw = await firstValueFrom(
+        this.http.get<unknown>('config.json', {
+          context: new HttpContext().set(SKIP_GLOBAL_ERROR_HANDLER, true),
+        })
+      );
+    } catch (error) {
+      if (error instanceof HttpErrorResponse) {
+        throw new ConfigLoadError(
+          'http',
+          `Failed to load config.json (HTTP ${error.status})`,
+          error.status
+        );
+      }
+      throw new ConfigLoadError('network', 'Network error while loading config.json');
     }
 
-    if (!response.ok) {
-      throw new Error(`[Config] Failed to load config.json (HTTP ${response.status})`);
-    }
-
-    const raw = await response.json();
     this.assertValid(raw);
     this.config = raw;
     this.logBanner();
@@ -32,7 +44,7 @@ export class ConfigService {
 
   private assertValid(raw: unknown): asserts raw is AppConfig {
     if (!raw || typeof raw !== 'object') {
-      throw new Error('[Config] config.json is not a valid JSON object');
+      throw new ConfigLoadError('invalid_format', 'config.json is not a valid JSON object');
     }
 
     const missing = REQUIRED_KEYS.filter(
@@ -40,7 +52,12 @@ export class ConfigService {
     );
 
     if (missing.length > 0) {
-      throw new Error(`[Config] Missing required fields in config.json: ${missing.join(', ')}`);
+      throw new ConfigLoadError(
+        'missing_fields',
+        `Missing required fields in config.json: ${missing.join(', ')}`,
+        undefined,
+        missing
+      );
     }
   }
 
