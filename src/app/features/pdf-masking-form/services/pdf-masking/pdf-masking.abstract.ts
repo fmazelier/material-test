@@ -4,7 +4,7 @@ import {
   UploadPdfResponse,
   VariantsPage,
   VariantsQueryParams,
-} from '../../models/form.model';
+} from '../../models/pdf-masking.model';
 
 export abstract class PdfMasking {
   abstract uploadVariants(file: File): Observable<unknown>;

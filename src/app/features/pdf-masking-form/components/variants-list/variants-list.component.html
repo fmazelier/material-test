@@ -8,7 +8,7 @@
     }
   </div>
 
-  <div class="max-h-96 overflow-y-auto">
+  <div class="max-h-96 overflow-y-auto" tabindex="0" role="region" aria-label="Variants chargés">
     @if (store.isLoading() && store.allVariants().length === 0) {
       <div class="text-on-surface-variant flex items-center gap-2 py-4 text-sm">
         <mat-spinner diameter="32" />

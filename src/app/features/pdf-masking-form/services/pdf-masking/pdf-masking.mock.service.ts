@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers, camelcase */
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { delay, EMPTY, Observable, of, switchMap, tap, throwError } from 'rxjs';
-
-import { SnackbarService } from '@shared/services/snackbar.service';
-import { triggerDownload } from '@shared/utils/download.utils';
+import { delay, Observable, of, switchMap, tap, throwError } from 'rxjs';
 
 import {
   UploadPdfResponse,
   VariantsPage,
+  VariantsQueryParams,
 } from '@features/pdf-masking-form/models/pdf-masking.model';
+import { SnackbarService } from '@shared/services/snackbar.service';
+import { triggerDownload } from '@shared/utils/download.utils';
+
 import { PdfMasking } from './pdf-masking.abstract';
 
 const MOCK_ERROR_MESSAGE = 'Une erreur interne est survenue. Veuillez réessayer plus tard.';
@@ -39,7 +40,7 @@ export class PdfMaskingMockService extends PdfMasking {
     return of(true).pipe(delay(1000));
   }
 
-  getVariants(): Observable<VariantsPage> {
+  getVariants(params: VariantsQueryParams): Observable<VariantsPage> {
     if (this.simulateGetVariantsError()) {
       const error = new HttpErrorResponse({ status: 500, statusText: 'Mock: get Variants failed' });
       return of(null).pipe(
@@ -48,14 +49,20 @@ export class PdfMaskingMockService extends PdfMasking {
         switchMap(() => throwError(() => error))
       );
     }
+
+    const items = Array.from(
+      { length: params.page_size },
+      (_, i) => `VARIANT_${(params.page - 1) * params.page_size + i + 1}`
+    );
+
     return of({
-      items: ['SAFRAN', 'CONFIDENTIEL', 'MILITAIRE'],
-      page: 1,
-      page_size: 50,
-      total_items: 1,
-      total_pages: 1,
-      has_next: false,
-      has_previous: false,
+      items,
+      page: params.page,
+      page_size: params.page_size,
+      total_items: items.length * 2,
+      total_pages: 2,
+      has_next: items.length * params.page < items.length * 2,
+      has_previous: params.page > 1,
     } satisfies VariantsPage).pipe(delay(2000));
   }
 
@@ -72,7 +79,7 @@ export class PdfMaskingMockService extends PdfMasking {
       );
     }
 
-    return EMPTY;
+    return of(void 0).pipe(delay(1000));
   }
 
   uploadPdf(file: File): Observable<UploadPdfResponse> {

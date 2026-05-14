@@ -18,7 +18,7 @@ export type VariantsPage = {
 };
 
 export type VariantsQueryParams = {
-  page?: number;
-  page_size?: number;
-  validated_only?: boolean;
+  page: number;
+  page_size: number;
+  validated_only: boolean;
 };

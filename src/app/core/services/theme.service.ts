@@ -1,9 +1,11 @@
-import { computed, effect, Injectable, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { computed, effect, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 
 type Theme = 'light' | 'dark';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly theme = signal<Theme>(this.getInitialTheme());
 
   readonly currentTheme = this.theme.asReadonly();
@@ -12,6 +14,8 @@ export class ThemeService {
   constructor() {
     effect(() => {
       const theme = this.theme();
+      if (!this.isBrowser) return;
+
       document.documentElement.classList.toggle('dark', this.isDark());
 
       // persist only if explicitly chosen
@@ -20,17 +24,21 @@ export class ThemeService {
       }
     });
 
-    this.listenToSystemTheme();
+    if (this.isBrowser) {
+      this.listenToSystemTheme();
+    }
   }
 
   toggle(): void {
     const next = this.theme() === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('theme', next);
+    if (this.isBrowser) {
+      localStorage.setItem('theme', next);
+    }
     this.theme.set(next);
   }
 
   private get isUserPreference(): boolean {
-    return localStorage.getItem('theme') !== null;
+    return this.isBrowser && localStorage.getItem('theme') !== null;
   }
 
   private set(theme: Theme): void {
@@ -38,6 +46,8 @@ export class ThemeService {
   }
 
   private getInitialTheme(): Theme {
+    if (!this.isBrowser) return 'light';
+
     const stored = localStorage.getItem('theme') as Theme | null;
 
     if (stored === 'light' || stored === 'dark') {

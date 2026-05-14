@@ -1,8 +1,10 @@
 /* eslint-disable camelcase */
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, catchError, EMPTY, filter, finalize, switchMap, tap } from 'rxjs';
+
 import { DialogService } from '@shared/services/dialog.service';
-import { catchError, EMPTY, filter, finalize, switchMap, tap } from 'rxjs';
+
 import { PdfMasking } from '../pdf-masking/pdf-masking.abstract';
 
 const PAGE_SIZE = 50;
@@ -11,9 +13,10 @@ const PAGE_SIZE = 50;
 export class VariantsStoreService {
   private readonly pdfMaskingService = inject(PdfMasking);
   private readonly dialogService = inject(DialogService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly cachedPages = new Set<number>();
-  private readonly currentPage = signal(1);
+  private currentPage = 1;
 
   private readonly _isLoading = signal(false);
   private readonly _isDeleting = signal(false);
@@ -28,28 +31,38 @@ export class VariantsStoreService {
   readonly allVariants = this._allVariants.asReadonly();
   readonly displayCount = computed(() => this._allVariants().length);
 
-  readonly variants$ = toObservable(this.currentPage).pipe(
-    filter((page) => page > 0 && !this.cachedPages.has(page)),
-    tap(() => this._isLoading.set(true)),
-    switchMap((page) =>
-      this.pdfMaskingService.getVariants({ page, page_size: PAGE_SIZE, validated_only: true }).pipe(
-        tap((res) => {
-          this.cachedPages.add(res.page);
-          this._allVariants.update((current) => [...current, ...res.items]);
-          this._hasNext.set(res.has_next);
-          this._totalItems.set(res.total_items);
-        }),
-        catchError(() => {
-          this.currentPage.update((p) => Math.max(1, p - 1));
-          return EMPTY;
-        }),
-        finalize(() => this._isLoading.set(false))
+  private readonly loadPage$ = new BehaviorSubject(1);
+
+  constructor() {
+    this.loadPage$
+      .pipe(
+        filter((page) => page > 0 && !this.cachedPages.has(page)),
+        tap(() => this._isLoading.set(true)),
+        switchMap((page) =>
+          this.pdfMaskingService
+            .getVariants({ page, page_size: PAGE_SIZE, validated_only: true })
+            .pipe(
+              tap((res) => {
+                this.cachedPages.add(res.page);
+                this._allVariants.update((current) => [...current, ...res.items]);
+                this._hasNext.set(res.has_next);
+                this._totalItems.set(res.total_items);
+              }),
+              catchError(() => {
+                this.currentPage = Math.max(1, this.currentPage - 1);
+                return EMPTY;
+              }),
+              finalize(() => this._isLoading.set(false))
+            )
+        ),
+        takeUntilDestroyed()
       )
-    )
-  );
+      .subscribe();
+  }
 
   loadMore(): void {
-    this.currentPage.update((p) => p + 1);
+    this.currentPage++;
+    this.loadPage$.next(this.currentPage);
   }
 
   deleteAll(): void {
@@ -65,7 +78,8 @@ export class VariantsStoreService {
           this._isDeleting.set(true);
           return this.pdfMaskingService.deleteVariants();
         }),
-        finalize(() => this._isDeleting.set(false))
+        finalize(() => this._isDeleting.set(false)),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
         this.reset();
@@ -77,8 +91,7 @@ export class VariantsStoreService {
     this._allVariants.set([]);
     this._hasNext.set(false);
     this._totalItems.set(0);
-    // toObservable uses distinctUntilChanged internally — force re-emit if already on page 1
-    this.currentPage.set(0);
-    this.currentPage.set(1);
+    this.currentPage = 1;
+    this.loadPage$.next(this.currentPage);
   }
 }
