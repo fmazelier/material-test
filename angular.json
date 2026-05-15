@@ -15,18 +15,15 @@
           "style": "scss",
           "changeDetection": "OnPush",
           "standalone": true,
-          "type": "component",
-          "skipTests": true
+          "type": "component"
         },
         "@schematics/angular:service": {
           "type": "service",
-          "flat": true,
-          "skipTests": true
+          "flat": true
         },
         "@schematics/angular:directive": {
           "type": "directive",
-          "flat": true,
-          "skipTests": true
+          "flat": true
         }
       },
       "root": "",
