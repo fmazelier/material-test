@@ -30,14 +30,13 @@ function getErrorContent(err: unknown): BootErrorContent {
       case 'invalid_format':
         return {
           title: 'Configuration invalide',
-          detail:
-            'Le fichier de configuration est corrompu ou dans un format inattendu. Contactez le support.',
+          detail: 'Le fichier de configuration est corrompu ou dans un format inattendu.',
           showReload: false,
         };
       case 'missing_fields':
         return {
           title: 'Configuration incomplète',
-          detail: `Des paramètres obligatoires sont manquants${err.missingFields?.length ? ` : ${err.missingFields.join(', ')}` : ''}. Contactez le support.`,
+          detail: `Des paramètres obligatoires sont manquants${err.missingFields?.length ? ` : ${err.missingFields.join(', ')}` : ''}.`,
           showReload: false,
         };
     }

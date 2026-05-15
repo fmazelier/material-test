@@ -9,16 +9,16 @@
   </div>
 
   <div class="max-h-96 overflow-y-auto" tabindex="0" role="region" aria-label="Variants chargés">
-    @if (store.isLoading() && store.allVariants().length === 0) {
+    @if (store.loading() && store.items().length === 0) {
       <div class="text-on-surface-variant flex items-center gap-2 py-4 text-sm">
         <mat-spinner diameter="32" />
         <span>Chargement des variants…</span>
       </div>
     }
 
-    @if (store.allVariants().length > 0) {
+    @if (store.items().length > 0) {
       <mat-chip-set aria-label="Liste des variants" class="flex flex-wrap gap-2">
-        @for (variant of store.allVariants(); track variant) {
+        @for (variant of store.items(); track variant) {
           <mat-chip color="primary" highlighted>
             {{ variant }}
           </mat-chip>
@@ -26,29 +26,29 @@
       </mat-chip-set>
     }
 
-    @if (!store.isLoading() && store.allVariants().length === 0) {
+    @if (!store.loading() && store.items().length === 0) {
       <p class="text-on-surface-variant pt-2 text-sm">Aucun variant disponible.</p>
     }
   </div>
 
-  <div class="flex justify-center" [class.pt-2]="store.hasNext() || store.allVariants().length > 0">
+  <div class="flex justify-center" [class.pt-2]="store.hasNext() || store.items().length > 0">
     @if (store.hasNext()) {
       <button
         matButton="outlined"
-        [disabled]="store.isLoading()"
+        [disabled]="store.loading()"
         (click)="store.loadMore()"
         aria-label="Charger plus de variants"
       >
-        <mat-icon appIcon [icon]="icons.chevronDown" [loading]="store.isLoading()" />
+        <mat-icon appIcon [icon]="icons.chevronDown" [loading]="store.loading()" />
         Afficher plus
       </button>
     }
 
-    @if (store.allVariants().length > 0) {
+    @if (store.items().length > 0) {
       <button
         matIconButton
         class="btn-error"
-        [disabled]="store.isDeleting() || store.isLoading()"
+        [disabled]="store.isDeleting() || store.loading()"
         (click)="store.deleteAll()"
         aria-label="Tout supprimer"
         matTooltip="Supprimer tous les mots en mémoire"

@@ -1,68 +1,30 @@
 /* eslint-disable camelcase */
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, catchError, EMPTY, filter, finalize, switchMap, tap } from 'rxjs';
+import { filter, finalize, Observable, switchMap } from 'rxjs';
 
 import { DialogService } from '@shared/services/dialog.service';
+import { PageResponse, PaginatedStore } from '@shared/store/paginated-store';
 
 import { PdfMasking } from '../pdf-masking/pdf-masking.abstract';
 
 const PAGE_SIZE = 50;
 
 @Injectable()
-export class VariantsStoreService {
+export class VariantsStoreService extends PaginatedStore<string> {
   private readonly pdfMaskingService = inject(PdfMasking);
   private readonly dialogService = inject(DialogService);
-  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly cachedPages = new Set<number>();
-  private currentPage = 1;
-
-  private readonly _isLoading = signal(false);
   private readonly _isDeleting = signal(false);
-  private readonly _hasNext = signal(false);
-  private readonly _totalItems = signal(0);
-  private readonly _allVariants = signal<string[]>([]);
-
-  readonly isLoading = this._isLoading.asReadonly();
   readonly isDeleting = this._isDeleting.asReadonly();
-  readonly hasNext = this._hasNext.asReadonly();
-  readonly totalItems = this._totalItems.asReadonly();
-  readonly allVariants = this._allVariants.asReadonly();
-  readonly displayCount = computed(() => this._allVariants().length);
-
-  private readonly loadPage$ = new BehaviorSubject(1);
 
   constructor() {
-    this.loadPage$
-      .pipe(
-        filter((page) => page > 0 && !this.cachedPages.has(page)),
-        tap(() => this._isLoading.set(true)),
-        switchMap((page) =>
-          this.pdfMaskingService
-            .getVariants({ page, page_size: PAGE_SIZE, validated_only: true })
-            .pipe(
-              tap((res) => {
-                this.cachedPages.add(res.page);
-                this._allVariants.update((current) => [...current, ...res.items]);
-                this._hasNext.set(res.has_next);
-                this._totalItems.set(res.total_items);
-              }),
-              catchError(() => {
-                this.currentPage = Math.max(1, this.currentPage - 1);
-                return EMPTY;
-              }),
-              finalize(() => this._isLoading.set(false))
-            )
-        ),
-        takeUntilDestroyed()
-      )
-      .subscribe();
+    super();
+    this.loadMore();
   }
 
-  loadMore(): void {
-    this.currentPage++;
-    this.loadPage$.next(this.currentPage);
+  protected fetchPage(page: number): Observable<PageResponse<string>> {
+    return this.pdfMaskingService.getVariants({ page, page_size: PAGE_SIZE, validated_only: true });
   }
 
   deleteAll(): void {
@@ -84,14 +46,5 @@ export class VariantsStoreService {
       .subscribe(() => {
         this.reset();
       });
-  }
-
-  reset(): void {
-    this.cachedPages.clear();
-    this._allVariants.set([]);
-    this._hasNext.set(false);
-    this._totalItems.set(0);
-    this.currentPage = 1;
-    this.loadPage$.next(this.currentPage);
   }
 }
