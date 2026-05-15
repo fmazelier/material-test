@@ -11,6 +11,13 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+  MAT_NATIVE_DATE_FORMATS,
+} from '@angular/material/core';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import {
   PreloadAllModules,
   provideRouter,
   TitleStrategy,
@@ -20,6 +27,7 @@ import {
   withRouterConfig,
 } from '@angular/router';
 
+import { FrenchDateAdapter } from '@core/adapters/french-date.adapter';
 import { httpErrorInterceptor } from '@core/interceptors/http-error.interceptor';
 import { ConfigService } from '@core/services/config.service';
 import { CustomTitleStrategyService } from '@core/services/custom-title-strategy.service';
@@ -55,5 +63,12 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: TitleStrategy, useClass: CustomTitleStrategyService },
     { provide: LOCALE_ID, useValue: 'fr-FR' },
+    { provide: MAT_DATE_LOCALE, useExisting: LOCALE_ID },
+    { provide: DateAdapter, useClass: FrenchDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MAT_NATIVE_DATE_FORMATS },
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'outline', floatLabel: 'auto' },
+    },
   ],
 };
