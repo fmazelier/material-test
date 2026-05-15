@@ -5,38 +5,32 @@ import {
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
-  MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
 
-export type ConfirmDialogData = {
+export type AlertDialogData = {
   /** Title displayed at the top of the dialog */
   title: string;
   /** Main message displayed in the body */
   message: string;
-  /** Label for the confirm button (default: 'Confirmer') */
-  confirmLabel?: string;
-  /** Label for the cancel button (default: 'Annuler') */
-  cancelLabel?: string;
+  /** Label for the close button (default: 'OK') */
+  closeLabel?: string;
 };
 
 @Component({
-  selector: 'app-confirm-dialog',
+  selector: 'app-alert-dialog',
   imports: [MatButtonModule, MatDialogActions, MatDialogClose, MatDialogTitle, MatDialogContent],
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
-    <mat-dialog-content> {{ data.message }} </mat-dialog-content>
+    <mat-dialog-content>{{ data.message }}</mat-dialog-content>
     <mat-dialog-actions>
-      <button matButton [mat-dialog-close]="false">{{ data.cancelLabel ?? 'Annuler' }}</button>
       <button matButton [mat-dialog-close]="true" cdkFocusInitial>
-        {{ data.confirmLabel ?? 'Confirmer' }}
+        {{ data.closeLabel ?? 'OK' }}
       </button>
     </mat-dialog-actions>
   `,
-  styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConfirmDialogComponent {
-  readonly dialogRef = inject<MatDialogRef<ConfirmDialogComponent, boolean>>(MatDialogRef);
-  protected readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+export class AlertDialogComponent {
+  protected readonly data = inject<AlertDialogData>(MAT_DIALOG_DATA);
 }
