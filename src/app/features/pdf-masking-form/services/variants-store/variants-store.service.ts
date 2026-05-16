@@ -9,8 +9,11 @@ import { PdfMasking } from '../pdf-masking/pdf-masking.abstract';
 
 const PAGE_SIZE = 50;
 
+type VariantFilters = { search: string; validated_only: boolean };
+type VariantSortField = 'name' | 'date' | 'size';
+
 @Injectable()
-export class VariantsStoreService extends PaginatedStore<string> {
+export class VariantsStoreService extends PaginatedStore<string, VariantFilters, VariantSortField> {
   private readonly pdfMaskingService = inject(PdfMasking);
   private readonly dialogService = inject(DialogService);
 
@@ -18,8 +21,7 @@ export class VariantsStoreService extends PaginatedStore<string> {
   readonly isDeleting = this._isDeleting.asReadonly();
 
   constructor() {
-    super({ pageSize: PAGE_SIZE });
-    this.loadMore();
+    super({ pageSize: PAGE_SIZE, mode: 'infinite' });
   }
 
   protected fetchPage(page: number): Observable<PaginatedResult<string>> {
@@ -50,7 +52,7 @@ export class VariantsStoreService extends PaginatedStore<string> {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
-        this.reset();
+        this.reset({ autoLoad: false });
       });
   }
 }

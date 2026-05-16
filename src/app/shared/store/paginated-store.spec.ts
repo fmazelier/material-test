@@ -22,6 +22,12 @@ const mockPage = (
   totalItems: total,
 });
 
+const emptyPage = (): PaginatedResult<TestItem> => ({
+  items: [],
+  hasNext: false,
+  totalItems: 0,
+});
+
 let fetchPageFn: ReturnType<typeof vi.fn<FetchPageFn>>;
 
 @Injectable()
@@ -41,6 +47,41 @@ const PAGE_SIZE = 2;
 class TestPaginatedStoreWithPageSize extends PaginatedStore<TestItem> {
   constructor() {
     super({ pageSize: PAGE_SIZE });
+  }
+
+  protected fetchPage(page: number): Observable<PaginatedResult<TestItem>> {
+    return fetchPageFn(page);
+  }
+}
+
+const DEBOUNCE_MS = 300;
+
+@Injectable()
+class TestPaginatedStoreWithDebounce extends PaginatedStore<TestItem> {
+  constructor() {
+    super({ filterDebounce: DEBOUNCE_MS });
+  }
+
+  protected fetchPage(page: number): Observable<PaginatedResult<TestItem>> {
+    return fetchPageFn(page);
+  }
+}
+
+@Injectable()
+class TestInfiniteStore extends PaginatedStore<TestItem> {
+  constructor() {
+    super({ pageSize: PAGE_SIZE, mode: 'infinite' });
+  }
+
+  protected fetchPage(page: number): Observable<PaginatedResult<TestItem>> {
+    return fetchPageFn(page);
+  }
+}
+
+@Injectable()
+class TestPaginatedModeStore extends PaginatedStore<TestItem> {
+  constructor() {
+    super({ pageSize: PAGE_SIZE, mode: 'paginated' });
   }
 
   protected fetchPage(page: number): Observable<PaginatedResult<TestItem>> {
@@ -80,6 +121,18 @@ describe('PaginatedStore', () => {
 
     it('should not be loading', () => {
       expect(store.loading()).toBe(false);
+    });
+
+    it('should have empty filters', () => {
+      expect(store.filters()).toEqual({});
+    });
+
+    it('should have null sort', () => {
+      expect(store.sort()).toBeNull();
+    });
+
+    it('should not be empty before any fetch', () => {
+      expect(store.isEmpty()).toBe(false);
     });
   });
 
@@ -164,6 +217,22 @@ describe('PaginatedStore', () => {
       store.loadMore();
 
       expect(store.error()).toEqual({ message: 'Network error', code: 503 });
+    });
+
+    it('should expose current filters and sort via signals', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setFilters({ search: 'test' });
+
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setSort({ field: 'name', direction: 'asc' });
+
+      fetchPageFn.mockClear();
+      fetchPageFn.mockReturnValue(of(mockPage(false, 4, 2)));
+      store.loadMore();
+
+      expect(fetchPageFn).toHaveBeenCalledWith(2);
+      expect(store.filters()).toEqual({ search: 'test' });
+      expect(store.sort()).toEqual({ field: 'name', direction: 'asc' });
     });
   });
 
@@ -339,6 +408,28 @@ describe('PaginatedStore', () => {
       expect(fetchPageFn).toHaveBeenCalledTimes(2);
       expect(store.totalItems()).toBe(8);
     });
+
+    it('should preserve filters and sort by default', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+
+      store.setFilters({ search: 'test' });
+      store.setSort({ field: 'name', direction: 'asc' });
+      store.reset({ autoLoad: false });
+
+      expect(store.filters()).toEqual({ search: 'test' });
+      expect(store.sort()).toEqual({ field: 'name', direction: 'asc' });
+    });
+
+    it('should clear filters and sort when resetFilters is true', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+
+      store.setFilters({ search: 'test' });
+      store.setSort({ field: 'name', direction: 'asc' });
+      store.reset({ autoLoad: false, resetFilters: true });
+
+      expect(store.filters()).toEqual({});
+      expect(store.sort()).toBeNull();
+    });
   });
 
   describe('pageSize and totalPages', () => {
@@ -404,5 +495,302 @@ describe('PaginatedStore', () => {
 
       expect(fetchPageFn).toHaveBeenCalledTimes(2);
     });
+  });
+
+  describe('setFilters', () => {
+    it('should update filters signal', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+
+      store.setFilters({ search: 'test', status: 'active' });
+
+      expect(store.filters()).toEqual({ search: 'test', status: 'active' });
+    });
+
+    it('should reset to page 1 and refetch', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(true, 6, 1)));
+      store.goToPage(3);
+
+      fetchPageFn.mockClear();
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setFilters({ search: 'test' });
+
+      expect(store.currentPage()).toBe(1);
+      expect(fetchPageFn).toHaveBeenCalledWith(1);
+      expect(store.filters()).toEqual({ search: 'test' });
+    });
+
+    it('should clear navigation cache', () => {
+      fetchPageFn.mockReturnValueOnce(of(mockPage(true, 6, 1)));
+      store.goToPage(1);
+
+      fetchPageFn.mockReturnValueOnce(of(mockPage(true, 6, 2)));
+      store.goToPage(2);
+
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setFilters({ search: 'test' });
+
+      fetchPageFn.mockReturnValue(of(mockPage(false, 4, 2)));
+      store.goToPage(2);
+
+      expect(fetchPageFn).toHaveBeenCalledTimes(4);
+    });
+
+    it('should cancel in-flight request when filters change', () => {
+      const inflight$ = new Subject<PaginatedResult<TestItem>>();
+      fetchPageFn.mockReturnValueOnce(inflight$);
+      store.goToPage(1);
+
+      fetchPageFn.mockReturnValueOnce(of(mockPage(false, 2, 1)));
+      store.setFilters({ search: 'new' });
+
+      inflight$.next(mockPage(true, 10, 1));
+      inflight$.complete();
+
+      expect(store.totalItems()).toBe(2);
+      expect(store.filters()).toEqual({ search: 'new' });
+    });
+  });
+
+  describe('patchFilters', () => {
+    it('should merge with existing filters', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setFilters({ search: 'test', status: 'active' });
+
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.patchFilters({ status: 'inactive' });
+
+      expect(store.filters()).toEqual({ search: 'test', status: 'inactive' });
+    });
+
+    it('should remove filters set to undefined', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setFilters({ search: 'test', status: 'active' });
+
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.patchFilters({ status: undefined });
+
+      expect(store.filters()).toEqual({ search: 'test' });
+    });
+
+    it('should add new filters', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setFilters({ search: 'test' });
+
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.patchFilters({ category: 'books' });
+
+      expect(store.filters()).toEqual({ search: 'test', category: 'books' });
+    });
+  });
+
+  describe('setSort', () => {
+    it('should update sort signal', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+
+      store.setSort({ field: 'name', direction: 'asc' });
+
+      expect(store.sort()).toEqual({ field: 'name', direction: 'asc' });
+    });
+
+    it('should reset to page 1 and refetch', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(true, 6, 1)));
+      store.goToPage(3);
+
+      fetchPageFn.mockClear();
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setSort({ field: 'name', direction: 'desc' });
+
+      expect(store.currentPage()).toBe(1);
+      expect(fetchPageFn).toHaveBeenCalledWith(1);
+      expect(store.sort()).toEqual({ field: 'name', direction: 'desc' });
+    });
+
+    it('should clear sort with null', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setSort({ field: 'name', direction: 'asc' });
+
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.setSort(null);
+
+      expect(store.sort()).toBeNull();
+    });
+
+    it('should cancel in-flight request when sort changes', () => {
+      const inflight$ = new Subject<PaginatedResult<TestItem>>();
+      fetchPageFn.mockReturnValueOnce(inflight$);
+      store.goToPage(1);
+
+      fetchPageFn.mockReturnValueOnce(of(mockPage(false, 2, 1)));
+      store.setSort({ field: 'date', direction: 'desc' });
+
+      inflight$.next(mockPage(true, 10, 1));
+      inflight$.complete();
+
+      expect(store.totalItems()).toBe(2);
+    });
+  });
+
+  describe('debounce', () => {
+    let debouncedStore: TestPaginatedStoreWithDebounce;
+
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [TestPaginatedStoreWithDebounce, DestroyRef],
+      });
+      debouncedStore = TestBed.inject(TestPaginatedStoreWithDebounce);
+    });
+
+    it('should debounce rapid filter changes', () => {
+      vi.useFakeTimers();
+
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+
+      debouncedStore.setFilters({ search: 'a' });
+      debouncedStore.setFilters({ search: 'ab' });
+      debouncedStore.setFilters({ search: 'abc' });
+
+      expect(fetchPageFn).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(DEBOUNCE_MS);
+
+      expect(fetchPageFn).toHaveBeenCalledTimes(1);
+      expect(debouncedStore.filters()).toEqual({ search: 'abc' });
+
+      vi.useRealTimers();
+    });
+
+    it('should not debounce sort changes', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+
+      debouncedStore.setSort({ field: 'name', direction: 'asc' });
+
+      expect(fetchPageFn).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('isEmpty', () => {
+    it('should be false before any fetch', () => {
+      expect(store.isEmpty()).toBe(false);
+    });
+
+    it('should be false when items are present', () => {
+      fetchPageFn.mockReturnValue(of(mockPage(false, 2, 1)));
+      store.loadMore();
+
+      expect(store.isEmpty()).toBe(false);
+    });
+
+    it('should be true when fetch returns empty results', () => {
+      fetchPageFn.mockReturnValue(of(emptyPage()));
+      store.goToPage(1);
+
+      expect(store.isEmpty()).toBe(true);
+    });
+
+    it('should be false while loading', () => {
+      fetchPageFn.mockReturnValue(of(emptyPage()).pipe(delay(1000)));
+      store.goToPage(1);
+
+      expect(store.loading()).toBe(true);
+      expect(store.isEmpty()).toBe(false);
+    });
+  });
+});
+
+describe('PaginatedStore (infinite mode)', () => {
+  let store: TestInfiniteStore;
+
+  beforeEach(async () => {
+    fetchPageFn = vi.fn<FetchPageFn>();
+    fetchPageFn.mockReturnValue(of(mockPage(true, 6, 1)));
+    TestBed.configureTestingModule({ providers: [TestInfiniteStore, DestroyRef] });
+    store = TestBed.inject(TestInfiniteStore);
+    await Promise.resolve();
+  });
+
+  it('should auto-load page 1 on construction', () => {
+    expect(fetchPageFn).toHaveBeenCalledTimes(1);
+    expect(store.currentPage()).toBe(1);
+    expect(store.items()).toHaveLength(2);
+  });
+
+  it('should append items on loadMore', () => {
+    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 6, 2)));
+    store.loadMore();
+
+    expect(store.items()).toHaveLength(4);
+    expect(store.currentPage()).toBe(2);
+  });
+
+  it('should cancel in-flight loadMore when filters change', () => {
+    const inflight$ = new Subject<PaginatedResult<TestItem>>();
+    fetchPageFn.mockReturnValueOnce(inflight$);
+    store.loadMore();
+
+    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 2, 1)));
+    store.setFilters({ search: 'new' });
+
+    inflight$.next(mockPage(true, 10, 2));
+    inflight$.complete();
+
+    expect(store.currentPage()).toBe(1);
+    expect(store.totalItems()).toBe(2);
+    expect(store.filters()).toEqual({ search: 'new' });
+  });
+
+  it('should reset and reload from page 1 on setSort', () => {
+    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 6, 2)));
+    store.loadMore();
+
+    fetchPageFn.mockReturnValueOnce(of(mockPage(true, 4, 1)));
+    store.setSort({ field: 'name', direction: 'desc' });
+
+    expect(store.currentPage()).toBe(1);
+    expect(store.items()).toHaveLength(2);
+    expect(store.totalItems()).toBe(4);
+  });
+
+  it('should ignore goToPage calls', () => {
+    fetchPageFn.mockClear();
+    store.goToPage(3);
+
+    expect(fetchPageFn).not.toHaveBeenCalled();
+    expect(store.currentPage()).toBe(1);
+  });
+
+  it('should not fetch when already loading', () => {
+    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 6, 2)).pipe(delay(1000)));
+    store.loadMore();
+
+    const callCount = fetchPageFn.mock.calls.length;
+    store.loadMore();
+
+    expect(fetchPageFn.mock.calls.length).toBe(callCount);
+  });
+});
+
+describe('PaginatedStore (paginated mode)', () => {
+  let store: TestPaginatedModeStore;
+
+  beforeEach(async () => {
+    fetchPageFn = vi.fn<FetchPageFn>();
+    fetchPageFn.mockReturnValue(of(mockPage(true, 6, 1)));
+    TestBed.configureTestingModule({ providers: [TestPaginatedModeStore, DestroyRef] });
+    store = TestBed.inject(TestPaginatedModeStore);
+    await Promise.resolve();
+  });
+
+  it('should auto-load page 1 on construction', () => {
+    expect(fetchPageFn).toHaveBeenCalledTimes(1);
+    expect(store.currentPage()).toBe(1);
+    expect(store.items()).toHaveLength(2);
+  });
+
+  it('should navigate pages via goToPage', () => {
+    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 6, 2)));
+    store.goToPage(2);
+
+    expect(store.currentPage()).toBe(2);
   });
 });

@@ -29,7 +29,7 @@ describe('VariantsStoreService', () => {
   };
   let dialogSpy: { confirm: ReturnType<typeof vi.fn> };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     pdfMaskingSpy = {
       getVariants: vi.fn().mockReturnValue(of(mockApiPage(1, true, 100))),
       deleteVariants: vi.fn().mockReturnValue(of(void 0)),
@@ -49,15 +49,18 @@ describe('VariantsStoreService', () => {
     });
 
     store = TestBed.inject(VariantsStoreService);
+    await Promise.resolve();
   });
 
   describe('initialization', () => {
     it('should load page 1 on construction', () => {
-      expect(pdfMaskingSpy.getVariants).toHaveBeenCalledWith({
-        page: 1,
-        page_size: 50,
-        validated_only: true,
-      });
+      expect(pdfMaskingSpy.getVariants).toHaveBeenCalledWith(
+        expect.objectContaining({
+          page: 1,
+          page_size: 50,
+          validated_only: true,
+        })
+      );
     });
 
     it('should populate items from first page', () => {
@@ -77,11 +80,13 @@ describe('VariantsStoreService', () => {
       pdfMaskingSpy.getVariants.mockReturnValueOnce(of(mockApiPage(2, false, 100)));
       store.loadMore();
 
-      expect(pdfMaskingSpy.getVariants).toHaveBeenCalledWith({
-        page: 2,
-        page_size: 50,
-        validated_only: true,
-      });
+      expect(pdfMaskingSpy.getVariants).toHaveBeenCalledWith(
+        expect.objectContaining({
+          page: 2,
+          page_size: 50,
+          validated_only: true,
+        })
+      );
       expect(store.items()).toHaveLength(4);
     });
   });
