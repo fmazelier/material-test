@@ -48,6 +48,27 @@ class TestStore extends BaseStore<TestState> {
   }
 }
 
+type GrpcError = { details: string; grpcCode: number };
+
+@Injectable()
+class CustomErrorStore extends BaseStore<TestState> {
+  constructor() {
+    super({ count: 0, name: 'initial' });
+  }
+
+  protected override extractError(err: unknown): StoreError {
+    const grpcError = err as GrpcError;
+    return {
+      message: grpcError.details ?? 'Unknown gRPC error',
+      code: grpcError.grpcCode,
+    };
+  }
+
+  doWithLoading<T>(source$: Observable<T>): Observable<T> {
+    return this.withLoading(source$);
+  }
+}
+
 describe('BaseStore', () => {
   let store: TestStore;
 
@@ -174,6 +195,19 @@ describe('BaseStore', () => {
         .subscribe({ error: (e) => (caughtError = e) });
 
       expect(caughtError).toBe(original);
+    });
+  });
+
+  describe('extractError', () => {
+    it('should use custom extractError when overridden', () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [CustomErrorStore] });
+      const customStore = TestBed.inject(CustomErrorStore);
+      const grpcError: GrpcError = { details: 'Deadline exceeded', grpcCode: 4 };
+
+      customStore.doWithLoading(throwError(() => grpcError)).subscribe({ error: () => {} });
+
+      expect(customStore.error()).toEqual({ message: 'Deadline exceeded', code: 4 });
     });
   });
 });

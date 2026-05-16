@@ -1,10 +1,9 @@
-/* eslint-disable camelcase */
 import { inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter, finalize, Observable, switchMap } from 'rxjs';
+import { filter, finalize, map, Observable, switchMap } from 'rxjs';
 
 import { DialogService } from '@shared/services/dialog.service';
-import { PageResponse, PaginatedStore } from '@shared/store/paginated-store';
+import { PaginatedResult, PaginatedStore } from '@shared/store/paginated-store';
 
 import { PdfMasking } from '../pdf-masking/pdf-masking.abstract';
 
@@ -19,12 +18,19 @@ export class VariantsStoreService extends PaginatedStore<string> {
   readonly isDeleting = this._isDeleting.asReadonly();
 
   constructor() {
-    super();
+    super({ pageSize: PAGE_SIZE });
     this.loadMore();
   }
 
-  protected fetchPage(page: number): Observable<PageResponse<string>> {
-    return this.pdfMaskingService.getVariants({ page, page_size: PAGE_SIZE, validated_only: true });
+  protected fetchPage(page: number): Observable<PaginatedResult<string>> {
+    return (
+      this.pdfMaskingService
+        // eslint-disable-next-line camelcase
+        .getVariants({ page, page_size: PAGE_SIZE, validated_only: true })
+        .pipe(
+          map((res) => ({ items: res.items, totalItems: res.total_items, hasNext: res.has_next }))
+        )
+    );
   }
 
   deleteAll(): void {

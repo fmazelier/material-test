@@ -40,6 +40,14 @@ export abstract class BaseStore<TState extends object> {
     this._error.set(error);
   }
 
+  protected extractError(err: unknown): StoreError {
+    const httpError = err as { message?: string; status?: number };
+    return {
+      message: httpError.message ?? 'An error occurred',
+      code: httpError.status,
+    };
+  }
+
   protected withLoading<T>(source$: Observable<T>): Observable<T> {
     return defer(() => {
       this._loading.set(true);
@@ -47,11 +55,7 @@ export abstract class BaseStore<TState extends object> {
 
       return source$.pipe(
         catchError((err: unknown) => {
-          const httpError = err as { message?: string; status?: number };
-          this._error.set({
-            message: httpError.message ?? 'An error occurred',
-            code: httpError.status,
-          });
+          this._error.set(this.extractError(err));
           return throwError(() => err);
         }),
         finalize(() => this._loading.set(false))

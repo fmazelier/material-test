@@ -1,20 +1,24 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable camelcase */
 import { DestroyRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 
 import { DialogService } from '@shared/services/dialog.service';
-import { PageResponse } from '@shared/store/paginated-store';
 
+import { VariantsPage } from '../../models/pdf-masking.model';
 import { PdfMasking } from '../pdf-masking/pdf-masking.abstract';
 
 import { VariantsStoreService } from './variants-store.service';
 
-const mockPage = (page: number, hasNext: boolean, total: number): PageResponse<string> => ({
+const mockApiPage = (page: number, hasNext: boolean, total: number): VariantsPage => ({
   items: Array.from({ length: 2 }, (_, i) => `VARIANT_${(page - 1) * 2 + i + 1}`),
   page,
-  has_next: hasNext,
+  page_size: 50,
   total_items: total,
+  total_pages: Math.ceil(total / 50),
+  has_next: hasNext,
+  has_previous: page > 1,
 });
 
 describe('VariantsStoreService', () => {
@@ -27,7 +31,7 @@ describe('VariantsStoreService', () => {
 
   beforeEach(() => {
     pdfMaskingSpy = {
-      getVariants: vi.fn().mockReturnValue(of(mockPage(1, true, 100))),
+      getVariants: vi.fn().mockReturnValue(of(mockApiPage(1, true, 100))),
       deleteVariants: vi.fn().mockReturnValue(of(void 0)),
     };
 
@@ -61,11 +65,16 @@ describe('VariantsStoreService', () => {
       expect(store.hasNext()).toBe(true);
       expect(store.totalItems()).toBe(100);
     });
+
+    it('should expose pageSize and totalPages', () => {
+      expect(store.pageSize()).toBe(50);
+      expect(store.totalPages()).toBe(2);
+    });
   });
 
   describe('loadMore', () => {
     it('should fetch the next page', () => {
-      pdfMaskingSpy.getVariants.mockReturnValueOnce(of(mockPage(2, false, 100)));
+      pdfMaskingSpy.getVariants.mockReturnValueOnce(of(mockApiPage(2, false, 100)));
       store.loadMore();
 
       expect(pdfMaskingSpy.getVariants).toHaveBeenCalledWith({
@@ -89,7 +98,7 @@ describe('VariantsStoreService', () => {
     });
 
     it('should call deleteVariants and reset on confirm', () => {
-      pdfMaskingSpy.getVariants.mockReturnValue(of(mockPage(1, false, 0)));
+      pdfMaskingSpy.getVariants.mockReturnValue(of(mockApiPage(1, false, 0)));
 
       store.deleteAll();
 
@@ -121,7 +130,7 @@ describe('VariantsStoreService', () => {
 
   describe('reset', () => {
     it('should clear items and reload', () => {
-      pdfMaskingSpy.getVariants.mockReturnValue(of(mockPage(1, false, 2)));
+      pdfMaskingSpy.getVariants.mockReturnValue(of(mockApiPage(1, false, 2)));
 
       store.reset();
 
