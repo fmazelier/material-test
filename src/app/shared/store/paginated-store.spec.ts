@@ -68,17 +68,6 @@ class TestPaginatedStoreWithDebounce extends PaginatedStore<TestItem> {
 }
 
 @Injectable()
-class TestInfiniteStore extends PaginatedStore<TestItem> {
-  constructor() {
-    super({ pageSize: PAGE_SIZE, mode: 'infinite' });
-  }
-
-  protected fetchPage(page: number): Observable<PaginatedResult<TestItem>> {
-    return fetchPageFn(page);
-  }
-}
-
-@Injectable()
 class TestPaginatedModeStore extends PaginatedStore<TestItem> {
   constructor() {
     super({ pageSize: PAGE_SIZE, mode: 'paginated' });
@@ -695,78 +684,6 @@ describe('PaginatedStore', () => {
       expect(store.loading()).toBe(true);
       expect(store.isEmpty()).toBe(false);
     });
-  });
-});
-
-describe('PaginatedStore (infinite mode)', () => {
-  let store: TestInfiniteStore;
-
-  beforeEach(async () => {
-    fetchPageFn = vi.fn<FetchPageFn>();
-    fetchPageFn.mockReturnValue(of(mockPage(true, 6, 1)));
-    TestBed.configureTestingModule({ providers: [TestInfiniteStore, DestroyRef] });
-    store = TestBed.inject(TestInfiniteStore);
-    await Promise.resolve();
-  });
-
-  it('should auto-load page 1 on construction', () => {
-    expect(fetchPageFn).toHaveBeenCalledTimes(1);
-    expect(store.currentPage()).toBe(1);
-    expect(store.items()).toHaveLength(2);
-  });
-
-  it('should append items on loadMore', () => {
-    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 6, 2)));
-    store.loadMore();
-
-    expect(store.items()).toHaveLength(4);
-    expect(store.currentPage()).toBe(2);
-  });
-
-  it('should cancel in-flight loadMore when filters change', () => {
-    const inflight$ = new Subject<PaginatedResult<TestItem>>();
-    fetchPageFn.mockReturnValueOnce(inflight$);
-    store.loadMore();
-
-    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 2, 1)));
-    store.setFilters({ search: 'new' });
-
-    inflight$.next(mockPage(true, 10, 2));
-    inflight$.complete();
-
-    expect(store.currentPage()).toBe(1);
-    expect(store.totalItems()).toBe(2);
-    expect(store.filters()).toEqual({ search: 'new' });
-  });
-
-  it('should reset and reload from page 1 on setSort', () => {
-    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 6, 2)));
-    store.loadMore();
-
-    fetchPageFn.mockReturnValueOnce(of(mockPage(true, 4, 1)));
-    store.setSort({ field: 'name', direction: 'desc' });
-
-    expect(store.currentPage()).toBe(1);
-    expect(store.items()).toHaveLength(2);
-    expect(store.totalItems()).toBe(4);
-  });
-
-  it('should ignore goToPage calls', () => {
-    fetchPageFn.mockClear();
-    store.goToPage(3);
-
-    expect(fetchPageFn).not.toHaveBeenCalled();
-    expect(store.currentPage()).toBe(1);
-  });
-
-  it('should not fetch when already loading', () => {
-    fetchPageFn.mockReturnValueOnce(of(mockPage(false, 6, 2)).pipe(delay(1000)));
-    store.loadMore();
-
-    const callCount = fetchPageFn.mock.calls.length;
-    store.loadMore();
-
-    expect(fetchPageFn.mock.calls.length).toBe(callCount);
   });
 });
 

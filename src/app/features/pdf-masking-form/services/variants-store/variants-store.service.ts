@@ -3,7 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, finalize, map, Observable, switchMap } from 'rxjs';
 
 import { DialogService } from '@shared/services/dialog.service';
-import { PaginatedResult, PaginatedStore } from '@shared/store/paginated-store';
+import { InfiniteStore } from '@shared/store/infinite-store';
+import { PaginatedResult } from '@shared/store/paginated-store';
 
 import { PdfMasking } from '../pdf-masking/pdf-masking.abstract';
 
@@ -13,7 +14,7 @@ type VariantFilters = { search: string; validated_only: boolean };
 type VariantSortField = 'name' | 'date' | 'size';
 
 @Injectable()
-export class VariantsStoreService extends PaginatedStore<string, VariantFilters, VariantSortField> {
+export class VariantsStoreService extends InfiniteStore<string, VariantFilters, VariantSortField> {
   private readonly pdfMaskingService = inject(PdfMasking);
   private readonly dialogService = inject(DialogService);
 
@@ -21,7 +22,7 @@ export class VariantsStoreService extends PaginatedStore<string, VariantFilters,
   readonly isDeleting = this._isDeleting.asReadonly();
 
   constructor() {
-    super({ pageSize: PAGE_SIZE, mode: 'infinite' });
+    super({ pageSize: PAGE_SIZE });
   }
 
   protected fetchPage(page: number): Observable<PaginatedResult<string>> {
