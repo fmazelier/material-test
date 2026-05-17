@@ -17,6 +17,7 @@ import {
   MAT_NATIVE_DATE_FORMATS,
 } from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 import {
   PreloadAllModules,
   provideRouter,
@@ -28,6 +29,7 @@ import {
 } from '@angular/router';
 
 import { FrenchDateAdapter } from '@core/adapters/french-date.adapter';
+import { FrenchPaginatorIntl } from '@core/adapters/french-paginator.intl';
 import { httpErrorInterceptor } from '@core/interceptors/http-error.interceptor';
 import { ConfigService } from '@core/services/config.service';
 import { CustomTitleStrategyService } from '@core/services/custom-title-strategy.service';
@@ -70,5 +72,6 @@ export const appConfig: ApplicationConfig = {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
       useValue: { appearance: 'outline', floatLabel: 'auto' },
     },
+    { provide: MatPaginatorIntl, useClass: FrenchPaginatorIntl },
   ],
 };
