@@ -1,0 +1,21 @@
+.mat-mdc-paginator {
+  .mat-mdc-paginator-navigation-first {
+    order: 1;
+  }
+
+  .mat-mdc-paginator-navigation-previous {
+    order: 2;
+  }
+
+  .mat-mdc-paginator-range-label {
+    order: 3;
+  }
+
+  .mat-mdc-paginator-navigation-next {
+    order: 4;
+  }
+
+  .mat-mdc-paginator-navigation-last {
+    order: 5;
+  }
+}
