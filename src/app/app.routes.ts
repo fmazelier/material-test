@@ -21,6 +21,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/pdf-masking-form/pdf-masking-form.routes'),
         title: 'formulaire',
       },
+      {
+        path: 'products',
+        loadChildren: () => import('./features/products/products.routes'),
+        title: 'produits',
+      },
     ],
   },
   {

@@ -27,6 +27,7 @@ import {
   LucideIcon,
   LucideMenu,
   LucideMoon,
+  LucideShoppingCart,
   LucideSun,
 } from '@lucide/angular';
 
@@ -80,6 +81,7 @@ export class ShellComponent {
   protected readonly navLinks: NavLink[] = [
     { label: 'Accueil', href: '/landing-page', icon: LucideHouse },
     { label: 'Masquer un PDF', href: '/pdf-masking-form', icon: LucideFileText },
+    { label: 'Produits', href: '/products', icon: LucideShoppingCart },
   ];
 
   constructor() {
