@@ -1,7 +1,7 @@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, Subject, switchMap, tap } from 'rxjs';
 
-import { BasePagedStore, BasePagedStoreConfig } from './base-paged-store';
+import { BasePagedStore, BasePagedStoreConfig, FilterValues } from './base-paged-store';
 
 type InfiniteFetchRequest = {
   page: number;
@@ -10,11 +10,8 @@ type InfiniteFetchRequest = {
 
 export abstract class InfiniteStore<
   TItem,
-  TFilters extends Record<string, string | number | boolean | undefined> = Record<
-    string,
-    string | number | boolean | undefined
-  >,
-  TSortField extends string = string,
+  TFilters extends FilterValues = never,
+  TSortField extends string = never,
 > extends BasePagedStore<TItem, TFilters, TSortField> {
   private readonly appendedPages = new Set<number>();
   private readonly infiniteFetch$ = new Subject<InfiniteFetchRequest>();

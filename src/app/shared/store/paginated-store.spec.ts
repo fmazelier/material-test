@@ -6,6 +6,7 @@ import { delay, Observable, of, Subject, throwError } from 'rxjs';
 import { PaginatedResult, PaginatedStore } from './paginated-store';
 
 type TestItem = { id: number; label: string };
+type TestFilters = { search?: string; status?: string; category?: string };
 
 type FetchPageFn = (page: number) => Observable<PaginatedResult<TestItem>>;
 
@@ -31,7 +32,7 @@ const emptyPage = (): PaginatedResult<TestItem> => ({
 let fetchPageFn: ReturnType<typeof vi.fn<FetchPageFn>>;
 
 @Injectable()
-class TestPaginatedStore extends PaginatedStore<TestItem> {
+class TestPaginatedStore extends PaginatedStore<TestItem, TestFilters, string> {
   constructor() {
     super();
   }
@@ -44,7 +45,7 @@ class TestPaginatedStore extends PaginatedStore<TestItem> {
 const PAGE_SIZE = 2;
 
 @Injectable()
-class TestPaginatedStoreWithPageSize extends PaginatedStore<TestItem> {
+class TestPaginatedStoreWithPageSize extends PaginatedStore<TestItem, TestFilters, string> {
   constructor() {
     super({ pageSize: PAGE_SIZE });
   }
@@ -57,7 +58,7 @@ class TestPaginatedStoreWithPageSize extends PaginatedStore<TestItem> {
 const DEBOUNCE_MS = 300;
 
 @Injectable()
-class TestPaginatedStoreWithDebounce extends PaginatedStore<TestItem> {
+class TestPaginatedStoreWithDebounce extends PaginatedStore<TestItem, TestFilters, string> {
   constructor() {
     super({ filterDebounce: DEBOUNCE_MS });
   }
@@ -68,7 +69,7 @@ class TestPaginatedStoreWithDebounce extends PaginatedStore<TestItem> {
 }
 
 @Injectable()
-class TestPaginatedModeStore extends PaginatedStore<TestItem> {
+class TestPaginatedModeStore extends PaginatedStore<TestItem, TestFilters, string> {
   constructor() {
     super({ pageSize: PAGE_SIZE, mode: 'paginated' });
   }

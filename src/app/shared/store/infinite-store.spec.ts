@@ -7,6 +7,7 @@ import { PaginatedResult } from './base-paged-store';
 import { InfiniteStore } from './infinite-store';
 
 type TestItem = { id: number; label: string };
+type TestFilters = { search?: string };
 
 type FetchPageFn = (page: number) => Observable<PaginatedResult<TestItem>>;
 
@@ -28,7 +29,7 @@ const PAGE_SIZE = 2;
 let fetchPageFn: ReturnType<typeof vi.fn<FetchPageFn>>;
 
 @Injectable()
-class TestInfiniteStore extends InfiniteStore<TestItem> {
+class TestInfiniteStore extends InfiniteStore<TestItem, TestFilters, string> {
   constructor() {
     super({ pageSize: PAGE_SIZE });
   }

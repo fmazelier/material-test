@@ -29,15 +29,18 @@ export type BasePagedStoreConfig = {
   filterDebounce?: number;
 };
 
+/** Resolves to `Signal<undefined>` when `TFlag` is `never`, otherwise `Signal<TValue>`. */
+type OptionalSignal<TFlag, TValue> = [TFlag] extends [never] ? Signal<undefined> : Signal<TValue>;
+
 export abstract class BasePagedStore<
   TItem,
-  TFilters extends FilterValues = FilterValues,
-  TSortField extends string = string,
+  TFilters extends FilterValues = never,
+  TSortField extends string = never,
 > extends BaseStore<PaginatedState<TItem>> {
   protected readonly destroyRef = inject(DestroyRef);
 
   private readonly _pageSize = signal(0);
-  private readonly _filters = signal<Partial<TFilters>>({});
+  private readonly _filters = signal<Partial<TFilters>>({} as Partial<TFilters>);
   private readonly _sort = signal<SortConfig<TSortField> | null>(null);
   private readonly filterInput$ = new Subject<Partial<TFilters>>();
   private readonly filterDebounce: number;
@@ -52,8 +55,16 @@ export abstract class BasePagedStore<
     const size = this._pageSize();
     return size > 0 ? Math.ceil(this.totalItems() / size) : 0;
   });
-  readonly filters: Signal<Partial<TFilters>> = this._filters.asReadonly();
-  readonly sort: Signal<SortConfig<TSortField> | null> = this._sort.asReadonly();
+
+  /** Returns the current filter values, or `undefined` if no `TFilters` generic was specified. */
+  readonly filters = this._filters.asReadonly() as OptionalSignal<TFilters, Partial<TFilters>>;
+
+  /** Returns the current sort config, or `undefined` if no `TSortField` generic was specified. */
+  readonly sort = this._sort.asReadonly() as OptionalSignal<
+    TSortField,
+    SortConfig<TSortField> | null
+  >;
+
   readonly isEmpty = computed(
     () => !this.loading() && this.items().length === 0 && this.currentPage() > 0
   );
@@ -105,7 +116,7 @@ export abstract class BasePagedStore<
   }
 
   protected resetFiltersAndSort(): void {
-    this._filters.set({});
+    this._filters.set({} as Partial<TFilters>);
     this._sort.set(null);
   }
 }

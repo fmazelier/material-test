@@ -1,7 +1,12 @@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, EMPTY, Subject, switchMap, tap } from 'rxjs';
 
-import { BasePagedStore, BasePagedStoreConfig, PaginatedResult } from './base-paged-store';
+import {
+  BasePagedStore,
+  BasePagedStoreConfig,
+  FilterValues,
+  PaginatedResult,
+} from './base-paged-store';
 
 export type { FilterValues, PaginatedResult, SortConfig } from './base-paged-store';
 
@@ -16,11 +21,8 @@ type PageNavRequest = {
 
 export abstract class PaginatedStore<
   TItem,
-  TFilters extends Record<string, string | number | boolean | undefined> = Record<
-    string,
-    string | number | boolean | undefined
-  >,
-  TSortField extends string = string,
+  TFilters extends FilterValues = never,
+  TSortField extends string = never,
 > extends BasePagedStore<TItem, TFilters, TSortField> {
   private readonly appendedPages = new Set<number>();
   private readonly navigationCache = new Map<number, PaginatedResult<TItem>>();

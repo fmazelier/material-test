@@ -10,11 +10,8 @@ import { PdfMasking } from '../pdf-masking/pdf-masking.abstract';
 
 const PAGE_SIZE = 50;
 
-type VariantFilters = { search: string; validated_only: boolean };
-type VariantSortField = 'name' | 'date' | 'size';
-
 @Injectable()
-export class VariantsStoreService extends InfiniteStore<string, VariantFilters, VariantSortField> {
+export class VariantsStoreService extends InfiniteStore<string> {
   private readonly pdfMaskingService = inject(PdfMasking);
   private readonly dialogService = inject(DialogService);
 
