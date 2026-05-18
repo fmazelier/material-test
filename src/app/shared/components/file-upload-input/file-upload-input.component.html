@@ -31,8 +31,8 @@
         [matTooltip]="acceptedTypesTooltipLabel()"
         [matTooltipPosition]="'above'"
       >
-        <mat-icon appIcon [size]="40" [icon]="icons.cloudUpload" />
-        <span class="drop-label text-on-surface/70 text-sm">
+        <mat-icon class="pointer-events-none" appIcon [size]="40" [icon]="icons.cloudUpload" />
+        <span class="drop-label text-on-surface/70 pointer-events-none text-sm">
           @let label = maxFiles() > 1 ? 'Déposez vos fichiers ici' : 'Déposez votre fichier ici';
           {{ isDragging() ? 'Relâchez pour ajouter' : label }}
         </span>
