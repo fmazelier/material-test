@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { computed, signal, Signal } from '@angular/core';
 import { catchError, defer, finalize, Observable, throwError } from 'rxjs';
 
@@ -41,10 +42,20 @@ export abstract class BaseStore<TState extends object> {
   }
 
   protected extractError(err: unknown): StoreError {
-    const httpError = err as { message?: string; status?: number };
+    if (err instanceof HttpErrorResponse) {
+      const message =
+        typeof err.error === 'string'
+          ? err.error
+          : (err.error?.message ?? err.message ?? 'An error occurred');
+      return {
+        message,
+        code: err.status,
+      };
+    }
+
     return {
-      message: httpError.message ?? 'An error occurred',
-      code: httpError.status,
+      message: err instanceof Error ? err.message : 'An unknown error occurred',
+      code: undefined,
     };
   }
 

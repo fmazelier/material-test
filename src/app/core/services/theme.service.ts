@@ -54,12 +54,12 @@ export class ThemeService {
       return stored;
     }
 
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
     return prefersDark ? 'dark' : 'light';
   }
 
   private listenToSystemTheme(): void {
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const media = matchMedia('(prefers-color-scheme: dark)');
 
     media.addEventListener('change', (e) => {
       // change nothing if the user has explicitly chosen a theme

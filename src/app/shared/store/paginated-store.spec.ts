@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { delay, Observable, of, Subject, throwError } from 'rxjs';
@@ -71,7 +72,8 @@ class TestPaginatedStoreWithDebounce extends PaginatedStore<TestItem, TestFilter
 @Injectable()
 class TestPaginatedModeStore extends PaginatedStore<TestItem, TestFilters, string> {
   constructor() {
-    super({ pageSize: PAGE_SIZE, mode: 'paginated' });
+    super({ pageSize: PAGE_SIZE });
+    this.goToFirstPage();
   }
 
   protected fetchPage(page: number): Observable<PaginatedResult<TestItem>> {
@@ -201,7 +203,7 @@ describe('PaginatedStore', () => {
 
     it('should set error signal on failure', () => {
       fetchPageFn.mockReturnValueOnce(
-        throwError(() => ({ message: 'Network error', status: 503 }))
+        throwError(() => new HttpErrorResponse({ error: 'Network error', status: 503 }))
       );
 
       store.loadMore();
@@ -259,7 +261,9 @@ describe('PaginatedStore', () => {
     });
 
     it('should set error signal on failure', () => {
-      fetchPageFn.mockReturnValueOnce(throwError(() => ({ message: 'Not Found', status: 404 })));
+      fetchPageFn.mockReturnValueOnce(
+        throwError(() => new HttpErrorResponse({ error: 'Not Found', status: 404 }))
+      );
 
       store.goToPage(999);
 

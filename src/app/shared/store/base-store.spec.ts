@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, Signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
@@ -142,7 +143,7 @@ describe('BaseStore', () => {
     });
 
     it('should update error signal', () => {
-      const error: StoreError = { message: 'fail', code: 500 };
+      const error = new HttpErrorResponse({ error: 'fail', status: 500 });
       store.exposedSetError(error);
       expect(store.error()).toEqual(error);
 
@@ -172,7 +173,7 @@ describe('BaseStore', () => {
     });
 
     it('should set error and loading to false on failure', () => {
-      const httpError = { message: 'Server Error', status: 500 };
+      const httpError = new HttpErrorResponse({ error: 'Server Error', status: 500 });
 
       store.doWithLoading(throwError(() => httpError)).subscribe({ error: () => {} });
 
@@ -183,7 +184,7 @@ describe('BaseStore', () => {
     it('should use a default error message when none is provided', () => {
       store.doWithLoading(throwError(() => ({}))).subscribe({ error: () => {} });
 
-      expect(store.error()?.message).toBe('An error occurred');
+      expect(store.error()?.message).toBe('An unknown error occurred');
     });
 
     it('should re-throw the error to the subscriber', () => {

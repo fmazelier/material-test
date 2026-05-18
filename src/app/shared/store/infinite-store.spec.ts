@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
+import { HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { delay, Observable, of, Subject, throwError } from 'rxjs';
@@ -32,6 +33,7 @@ let fetchPageFn: ReturnType<typeof vi.fn<FetchPageFn>>;
 class TestInfiniteStore extends InfiniteStore<TestItem, TestFilters, string> {
   constructor() {
     super({ pageSize: PAGE_SIZE });
+    this.loadMore();
   }
 
   protected fetchPage(page: number): Observable<PaginatedResult<TestItem>> {
@@ -119,7 +121,9 @@ describe('InfiniteStore', () => {
   });
 
   it('should set error signal on failure', () => {
-    fetchPageFn.mockReturnValueOnce(throwError(() => ({ message: 'Network error', status: 503 })));
+    fetchPageFn.mockReturnValueOnce(
+      throwError(() => new HttpErrorResponse({ error: 'Network error', status: 503 }))
+    );
 
     store.loadMore();
 

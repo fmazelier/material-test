@@ -1,5 +1,5 @@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, EMPTY, Subject, switchMap, tap } from 'rxjs';
+import { catchError, concatMap, EMPTY, Subject, tap } from 'rxjs';
 
 import { BasePagedStore, BasePagedStoreConfig, FilterValues } from './base-paged-store';
 
@@ -19,7 +19,6 @@ export abstract class InfiniteStore<
   constructor(config?: BasePagedStoreConfig) {
     super(config);
     this.setupInfiniteMode();
-    queueMicrotask(() => this.loadMore());
   }
 
   loadMore(): void {
@@ -35,7 +34,7 @@ export abstract class InfiniteStore<
     }
     this.set({ items: [], hasNext: false, totalItems: 0, currentPage: 0 });
     if (options?.autoLoad !== false) {
-      this.loadMore();
+      this.infiniteFetch$.next({ page: 1, strategy: 'replace' });
     }
   }
 
@@ -48,7 +47,7 @@ export abstract class InfiniteStore<
   private setupInfiniteMode(): void {
     this.infiniteFetch$
       .pipe(
-        switchMap(({ page, strategy }) =>
+        concatMap(({ page, strategy }) =>
           this.withLoading(this.fetchPage(page)).pipe(
             tap((res) => {
               if (strategy === 'append') {

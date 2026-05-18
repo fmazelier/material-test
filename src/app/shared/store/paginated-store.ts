@@ -10,9 +10,7 @@ import {
 
 export type { FilterValues, PaginatedResult, SortConfig } from './base-paged-store';
 
-type PaginatedStoreConfig = BasePagedStoreConfig & {
-  mode?: 'paginated';
-};
+type PaginatedStoreConfig = BasePagedStoreConfig;
 
 type PageNavRequest = {
   page: number;
@@ -27,16 +25,10 @@ export abstract class PaginatedStore<
   private readonly appendedPages = new Set<number>();
   private readonly navigationCache = new Map<number, PaginatedResult<TItem>>();
   private readonly pageNavigation$ = new Subject<PageNavRequest>();
-  private readonly mode: 'paginated' | undefined;
 
   constructor(config?: PaginatedStoreConfig) {
     super(config);
-    this.mode = config?.mode;
     this.setupPaginatedMode();
-
-    if (this.mode === 'paginated') {
-      queueMicrotask(() => this.goToFirstPage());
-    }
   }
 
   loadMore(): void {
@@ -107,7 +99,7 @@ export abstract class PaginatedStore<
     this.pageNavigation$
       .pipe(
         switchMap(({ page, forceRefresh }) => {
-          const cached = !forceRefresh ? this.navigationCache.get(page) : undefined;
+          const cached = forceRefresh ? undefined : this.navigationCache.get(page);
           if (cached) {
             this.setError(null);
             this.applyPageResult(page, cached);

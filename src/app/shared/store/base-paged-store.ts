@@ -40,7 +40,7 @@ export abstract class BasePagedStore<
   protected readonly destroyRef = inject(DestroyRef);
 
   private readonly _pageSize = signal(0);
-  private readonly _filters = signal<Partial<TFilters>>({} as Partial<TFilters>);
+  private readonly _filters = signal<Partial<TFilters>>({});
   private readonly _sort = signal<SortConfig<TSortField> | null>(null);
   private readonly filterInput$ = new Subject<Partial<TFilters>>();
   private readonly filterDebounce: number;
@@ -116,7 +116,7 @@ export abstract class BasePagedStore<
   }
 
   protected resetFiltersAndSort(): void {
-    this._filters.set({} as Partial<TFilters>);
+    this._filters.set({});
     this._sort.set(null);
   }
 }
