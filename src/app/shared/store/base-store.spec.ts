@@ -49,7 +49,7 @@ class TestStore extends BaseStore<TestState> {
   }
 }
 
-type GrpcError = { details: string; grpcCode: number };
+type CustomApiError = { errorMessage: string; errorCode: number };
 
 @Injectable()
 class CustomErrorStore extends BaseStore<TestState> {
@@ -58,10 +58,10 @@ class CustomErrorStore extends BaseStore<TestState> {
   }
 
   protected override extractError(err: unknown): StoreError {
-    const grpcError = err as GrpcError;
+    const apiError = err as CustomApiError;
     return {
-      message: grpcError.details ?? 'Unknown gRPC error',
-      code: grpcError.grpcCode,
+      message: apiError.errorMessage ?? 'Unknown error',
+      code: apiError.errorCode,
     };
   }
 
@@ -204,9 +204,9 @@ describe('BaseStore', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({ providers: [CustomErrorStore] });
       const customStore = TestBed.inject(CustomErrorStore);
-      const grpcError: GrpcError = { details: 'Deadline exceeded', grpcCode: 4 };
+      const customError: CustomApiError = { errorMessage: 'Deadline exceeded', errorCode: 4 };
 
-      customStore.doWithLoading(throwError(() => grpcError)).subscribe({ error: () => {} });
+      customStore.doWithLoading(throwError(() => customError)).subscribe({ error: () => {} });
 
       expect(customStore.error()).toEqual({ message: 'Deadline exceeded', code: 4 });
     });
