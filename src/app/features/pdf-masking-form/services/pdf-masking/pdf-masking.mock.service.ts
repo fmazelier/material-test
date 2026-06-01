@@ -9,7 +9,8 @@ import {
   VariantsQueryParams,
 } from '@features/pdf-masking-form/models/pdf-masking.model';
 import { SnackbarService } from '@shared/services/snackbar.service';
-import { triggerDownload } from '@shared/utils/download.utils';
+
+import { triggerDownload } from '@mazelab/ng-kit/utils';
 
 import { PdfMasking } from './pdf-masking.abstract';
 
@@ -34,7 +35,7 @@ export class PdfMaskingMockService extends PdfMasking {
       return of(null).pipe(
         delay(1000),
         tap(() => this.snackbarService.error(MOCK_ERROR_MESSAGE)),
-        switchMap(() => throwError(() => error))
+        switchMap(() => throwError(() => error)),
       );
     }
     return of(true).pipe(delay(1000));
@@ -46,13 +47,13 @@ export class PdfMaskingMockService extends PdfMasking {
       return of(null).pipe(
         delay(2000),
         tap(() => this.snackbarService.error(MOCK_ERROR_MESSAGE)),
-        switchMap(() => throwError(() => error))
+        switchMap(() => throwError(() => error)),
       );
     }
 
     const items = Array.from(
       { length: params.page_size },
-      (_, i) => `VARIANT_${(params.page - 1) * params.page_size + i + 1}`
+      (_, i) => `VARIANT_${(params.page - 1) * params.page_size + i + 1}`,
     );
 
     return of({
@@ -75,7 +76,7 @@ export class PdfMaskingMockService extends PdfMasking {
       return of(null).pipe(
         delay(2000),
         tap(() => this.snackbarService.error(MOCK_ERROR_MESSAGE)),
-        switchMap(() => throwError(() => error))
+        switchMap(() => throwError(() => error)),
       );
     }
 
@@ -88,7 +89,7 @@ export class PdfMaskingMockService extends PdfMasking {
       return of(null).pipe(
         delay(2000),
         tap(() => this.snackbarService.error(MOCK_ERROR_MESSAGE)),
-        switchMap(() => throwError(() => error))
+        switchMap(() => throwError(() => error)),
       );
     }
     return of({
@@ -107,13 +108,13 @@ export class PdfMaskingMockService extends PdfMasking {
       return of(null).pipe(
         delay(1500),
         tap(() => this.snackbarService.error(MOCK_ERROR_MESSAGE)),
-        switchMap(() => throwError(() => error))
+        switchMap(() => throwError(() => error)),
       );
     }
     const blob = new Blob(['mock pdf content'], { type: 'application/pdf' });
     return of(blob).pipe(
       delay(500),
-      tap((b) => triggerDownload(b, fileName))
+      tap((b) => triggerDownload(b, fileName)),
     );
   }
 }

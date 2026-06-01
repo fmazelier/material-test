@@ -44,8 +44,8 @@
               },
               {
                 "glob": "**/*",
-                "input": "node_modules/devlab-ng-kit/assets",
-                "output": "/devlab-ng-kit/",
+                "input": "node_modules/@mazelab/ng-kit/assets",
+                "output": "/@mazelab/ng-kit/",
                 "ignore": ["**/fonts/**"]
               }
             ],

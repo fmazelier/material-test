@@ -4,7 +4,8 @@ import { Observable, tap } from 'rxjs';
 
 import { ConfigService } from '@core/services/config.service';
 import { IGNORED_ERROR_STATUSES } from '@core/tokens/http-error-context.token';
-import { triggerDownload } from '@shared/utils/download.utils';
+
+import { triggerDownload } from '@mazelab/ng-kit/utils';
 
 import {
   UploadPdfResponse,

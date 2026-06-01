@@ -11,7 +11,12 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
         href="https://www.safran-group.com/companies/safran-aircraft-engines"
         target="_blank"
       >
-        <img ngSrc="images/logo-safran.webp" width="32" height="35" alt="Logo de safran" />
+        <img
+          ngSrc="@mazelab/ng-kit/images/logo-safran.webp"
+          width="32"
+          height="35"
+          alt="Logo de safran"
+        />
       </a>
       <p class="font-medium @[400px]:order-1">
         Copyright © Safran Aircraft Engines {{ currentDate | date: 'y' }}
