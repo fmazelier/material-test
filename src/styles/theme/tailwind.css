@@ -2,6 +2,7 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities) important;
+@source '../../../node_modules/devlab-ng-kit/**/*.mjs';
 
 @theme {
   /* Map Material theme colors to CSS variables for Tailwind */

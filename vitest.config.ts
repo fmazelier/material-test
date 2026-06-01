@@ -1,21 +1,3 @@
-import { defineConfig } from 'vitest/config';
+import devlabVitestConfig from 'devlab-ng-kit/config/vitest';
 
-export default defineConfig({
-  test: {
-    coverage: {
-      reportsDirectory: 'reports/coverage',
-      exclude: [
-        '**/node_modules/**',
-        '**/*.spec.ts',
-        '**/index.ts',
-        '**/*.routes.ts',
-        '**/*.tokens.ts',
-        '**/*.model.ts',
-        '**/*.mock.*',
-        '**/*.config.ts',
-        '**/*.d.ts',
-        'src/main.ts',
-      ],
-    },
-  },
-});
+export default devlabVitestConfig;

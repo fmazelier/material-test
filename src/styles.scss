@@ -1,7 +1,8 @@
-@use './styles/fonts';
+@use 'devlab-ng-kit/styles/fonts' as *;
+
 @use '@angular/material' as mat;
 @use './styles/theme' as theme;
-@use './styles/global';
+@use 'devlab-ng-kit/styles' as *;
 @import './styles/theme/tailwind.css';
 
 *,
