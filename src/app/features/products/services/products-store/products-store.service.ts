@@ -28,7 +28,7 @@ export class ProductsStoreService extends PaginatedStore<
   readonly categories = this._categories.asReadonly();
 
   constructor() {
-    super({ pageSize: PAGE_SIZE, mode: 'paginated', filterDebounce: 300 });
+    super({ pageSize: PAGE_SIZE, filterDebounce: 300 });
     this.loadCategories();
   }
 
@@ -61,7 +61,7 @@ export class ProductsStoreService extends PaginatedStore<
         items: res.products,
         totalItems: res.total,
         hasNext: skip + res.products.length < res.total,
-      }))
+      })),
     );
   }
 

@@ -1,4 +1,4 @@
-import baseConfig from 'devlab-ng-kit/config/stylelint';
+import baseConfig from '@mazelab/ng-kit/config/stylelint';
 
 /** @type {import('stylelint').Config} */
 export default {

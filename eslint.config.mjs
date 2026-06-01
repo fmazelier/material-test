@@ -1,4 +1,4 @@
 // @ts-check
-import createAngularEslintConfig from 'devlab-ng-kit/config/eslint';
+import createAngularEslintConfig from '@mazelab/ng-kit/config/eslint';
 
 export default createAngularEslintConfig();

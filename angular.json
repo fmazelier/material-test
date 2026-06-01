@@ -90,9 +90,10 @@
             "development": {
               "buildTarget": "material-test:build:development"
             },
-          "options": {
-            "prebundle": {
-              "exclude": ["devlab-ng-kit"]
+            "options": {
+              "prebundle": {
+                "exclude": ["@mazelab/ng-kit"]
+              }
             }
           },
           "defaultConfiguration": "development"

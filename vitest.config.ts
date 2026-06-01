@@ -1,3 +1,3 @@
-import devlabVitestConfig from 'devlab-ng-kit/config/vitest';
+import devlabVitestConfig from '@mazelab/ng-kit/config/vitest';
 
 export default devlabVitestConfig;

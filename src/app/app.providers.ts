@@ -17,10 +17,10 @@ import {
 
 import { CustomTitleStrategyService } from '@core/services/custom-title-strategy.service';
 
-import { provideDlkRuntimeConfig, provideDlkRuntimeConfigLoader } from 'devlab-ng-kit/bootstrap';
-import { httpErrorInterceptor } from 'devlab-ng-kit/interceptor';
-import { provideDlkFrenchMaterialDefaults } from 'devlab-ng-kit/material';
-import { ThemeService } from 'devlab-ng-kit/service';
+import { provideMlkRuntimeConfig, provideMlkRuntimeConfigLoader } from '@mazelab/ng-kit/bootstrap';
+import { httpErrorInterceptor } from '@mazelab/ng-kit/interceptor';
+import { provideMlkFrenchMaterialDefaults } from '@mazelab/ng-kit/material';
+import { ThemeService } from '@mazelab/ng-kit/service';
 
 import { name as appName, version as appVersion } from '../../package.json';
 
@@ -29,12 +29,12 @@ import type { AppEnv } from './core/models/env.model';
 
 export function provideAppRuntime(): EnvironmentProviders {
   return makeEnvironmentProviders([
-    provideDlkRuntimeConfig<AppEnv>({
+    provideMlkRuntimeConfig<AppEnv>({
       requiredKeys: ['apiUrl'],
       appName,
       appVersion,
     }),
-    provideDlkRuntimeConfigLoader<AppEnv>(),
+    provideMlkRuntimeConfigLoader<AppEnv>(),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
   ]);
 }
@@ -44,7 +44,7 @@ export function provideAppUi(): EnvironmentProviders {
     provideEnvironmentInitializer(() => {
       inject(ThemeService);
     }),
-    provideDlkFrenchMaterialDefaults(),
+    provideMlkFrenchMaterialDefaults(),
   ]);
 }
 

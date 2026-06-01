@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ConfigService } from 'devlab-ng-kit/bootstrap';
-
+import { ConfigService } from '@mazelab/ng-kit/bootstrap';
 import { vi } from 'vitest';
 
 import { AppConfigService } from './app-config.service';

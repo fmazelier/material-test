@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 
-import { ConfigService } from 'devlab-ng-kit/bootstrap';
+import { ConfigService } from '@mazelab/ng-kit/bootstrap';
 
 import type { AppEnv } from '../models/env.model';
 

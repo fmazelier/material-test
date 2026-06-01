@@ -8,4 +8,4 @@ import { RouterOutlet } from '@angular/router';
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class App {}
+export class AppComponent {}
