@@ -8,6 +8,9 @@ ARG VERDACCIO_USER
 ARG VERDACCIO_PASSWORD
 ARG VERDACCIO_REGISTRY="https://npm.florianmazelier.dev"
 
+# Disable Husky git hooks in CI/Docker environment
+ENV HUSKY=0
+
 # Install dependencies first to maximize Docker layer cache hits
 COPY package.json package-lock.json ./
 
