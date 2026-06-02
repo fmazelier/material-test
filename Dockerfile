@@ -15,14 +15,15 @@ ENV HUSKY=0
 COPY package.json package-lock.json ./
 
 # Authenticate with Verdaccio, install, then remove credentials
-RUN if [ -n "${VERDACCIO_USER}" ] && [ -n "${VERDACCIO_PASSWORD}" ]; then \
+RUN --mount=type=cache,target=/root/.npm \
+    if [ -n "${VERDACCIO_USER}" ] && [ -n "${VERDACCIO_PASSWORD}" ]; then \
       ENCODED=$(printf '%s:%s' "${VERDACCIO_USER}" "${VERDACCIO_PASSWORD}" | base64 | tr -d '\n') && \
       REGISTRY_HOST="${VERDACCIO_REGISTRY#https://}" && \
       echo "//${REGISTRY_HOST}/:_auth=${ENCODED}" >> ~/.npmrc; \
     else \
       echo "ERROR: VERDACCIO_USER and VERDACCIO_PASSWORD build args are required." >&2 && exit 1; \
     fi && \
-    npm ci --prefer-offline && \
+    npm ci --cache /root/.npm && \
     rm -f ~/.npmrc
 
 # Copy build scripts before source to preserve cache when only source changes
