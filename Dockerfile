@@ -3,9 +3,24 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
+# Verdaccio credentials — pass at build time:
+ARG VERDACCIO_USER
+ARG VERDACCIO_PASSWORD
+ARG VERDACCIO_REGISTRY="https://npm.florianmazelier.dev"
+
 # Install dependencies first to maximize Docker layer cache hits
 COPY package.json package-lock.json ./
-RUN npm ci --prefer-offline
+
+# Authenticate with Verdaccio, install, then remove credentials
+RUN if [ -n "${VERDACCIO_USER}" ] && [ -n "${VERDACCIO_PASSWORD}" ]; then \
+      ENCODED=$(printf '%s:%s' "${VERDACCIO_USER}" "${VERDACCIO_PASSWORD}" | base64 | tr -d '\n') && \
+      REGISTRY_HOST="${VERDACCIO_REGISTRY#https://}" && \
+      echo "//${REGISTRY_HOST}/:_auth=${ENCODED}" >> ~/.npmrc; \
+    else \
+      echo "ERROR: VERDACCIO_USER and VERDACCIO_PASSWORD build args are required." >&2 && exit 1; \
+    fi && \
+    npm ci --prefer-offline && \
+    rm -f ~/.npmrc
 
 # Copy build scripts before source to preserve cache when only source changes
 COPY scripts ./scripts/
