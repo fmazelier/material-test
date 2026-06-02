@@ -1,0 +1,25 @@
+@use '@angular/material' as mat;
+
+:root {
+  @include mat.table-overrides(
+    (
+      background-color: var(--mat-sys-surface-container-lowest),
+      header-headline-color: var(--mat-sys-on-surface),
+      row-item-outline-color: color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent),
+    )
+  );
+}
+
+.mat-mdc-table {
+  .mat-mdc-header-row {
+    background-color: var(--mat-sys-surface-container);
+  }
+
+  .mat-mdc-row {
+    transition: background-color 150ms ease;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+    }
+  }
+}
