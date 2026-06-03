@@ -27,18 +27,74 @@ import { name as appName, version as appVersion } from '../../package.json';
 import { routes } from './app.routes';
 import type { AppEnv } from './core/models/env.model';
 
-export function provideAppRuntime(): EnvironmentProviders {
-  return makeEnvironmentProviders([
-    provideMlkRuntimeConfig<AppEnv>({
-      requiredKeys: ['apiUrl'],
-      appName,
-      appVersion,
-    }),
-    provideMlkRuntimeConfigLoader<AppEnv>(),
-    provideHttpClient(withInterceptors([httpErrorInterceptor])),
-  ]);
+import { ConfigLoadError } from './config-error.model';
+import type { KeycloakRuntimeConfig } from './keycloak-runtime-config.model';
+import { assertBoolean, assertNonEmptyString, assertRecord } from './runtime-config.validators';
+
+export function assertKeycloakRuntimeConfig(
+  value: unknown,
+  field = 'keycloak',
+): asserts value is KeycloakRuntimeConfig {
+  assertRecord(value, field);
+
+  assertNonEmptyString(value['url'], `${field}.url`);
+  assertNonEmptyString(value['realm'], `${field}.realm`);
+  assertNonEmptyString(value['clientId'], `${field}.clientId`);
+
+  const initOptions = value['initOptions'];
+  if (initOptions === undefined) {
+    return;
+  }
+
+  assertRecord(initOptions, `${field}.initOptions`);
+
+  const onLoad = initOptions['onLoad'];
+  if (onLoad !== undefined && onLoad !== 'check-sso' && onLoad !== 'login-required') {
+    throw new ConfigLoadError(
+      'invalid_format',
+      `Invalid env.json: "${field}.initOptions.onLoad" must be "check-sso" or "login-required"`,
+    );
+  }
+
+  const pkceMethod = initOptions['pkceMethod'];
+  if (pkceMethod !== undefined && pkceMethod !== 'S256' && pkceMethod !== false) {
+    throw new ConfigLoadError(
+      'invalid_format',
+      `Invalid env.json: "${field}.initOptions.pkceMethod" must be "S256" or false`,
+    );
+  }
+
+  const checkLoginIframe = initOptions['checkLoginIframe'];
+  if (checkLoginIframe !== undefined) {
+    assertBoolean(checkLoginIframe, `${field}.initOptions.checkLoginIframe`);
+  }
+
+  const silentUri = initOptions['silentCheckSsoRedirectUri'];
+  if (silentUri !== undefined) {
+    assertNonEmptyString(silentUri, `${field}.initOptions.silentCheckSsoRedirectUri`);
+  }
 }
 
+
+function assertAppRuntimeConfig(raw: unknown): asserts raw is AppEnv {
+  assertRecord(raw, 'env');
+
+  assertNonEmptyString(raw['apiUrl'], 'apiUrl');
+  assertKeycloakRuntimeConfig(raw['keycloak'], 'keycloak');
+}
+
+export function provideAppRuntime(): EnvironmentProviders {
+  return makeEnvironmentProviders([
+    provideDlkRuntimeConfig<AppEnv>({
+      requiredKeys: ['apiUrl', 'keycloak'],
+      appName,
+      appVersion,
+      validate: assertAppRuntimeConfig,
+    }),
+    provideDlkRuntimeConfigLoader<AppEnv>(),
+    provideHttpClient(withInterceptors([httpErrorInterceptor, authInterceptor])),
+  ]);
+}
 export function provideAppUi(): EnvironmentProviders {
   return makeEnvironmentProviders([
     provideEnvironmentInitializer(() => {
