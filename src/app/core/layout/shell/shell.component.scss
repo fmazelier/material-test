@@ -22,41 +22,21 @@ mat-sidenav {
 }
 
 mat-sidenav-content {
-  padding-top: var(--mat-toolbar-standard-height, 64px);
-
   mat-toolbar {
-    position: fixed;
-    left: var(--sidebar-expanded);
+    position: sticky;
     top: 0;
-    right: 0;
     z-index: 10;
     background: transparent;
     color: var(--mat-sys-on-surface-variant);
     border-bottom: 1px solid oklch(from var(--mat-sys-on-surface-variant) l c h / 8%);
     backdrop-filter: blur(12px);
-    will-change: left;
-    transition: left $transition-duration $transition-timing-function !important;
   }
 
   &.collapsed {
     margin-left: var(--sidebar-collapsed) !important;
-
-    mat-toolbar {
-      left: var(--sidebar-collapsed);
-    }
   }
 
   &.expanded {
     margin-left: var(--sidebar-expanded) !important;
-  }
-}
-
-:host(.is-mobile) {
-  mat-toolbar {
-    left: 0;
-  }
-
-  mat-sidenav-content {
-    padding-top: var(--mat-toolbar-mobile-height, 56px);
   }
 }

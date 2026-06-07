@@ -35,22 +35,22 @@
     [class.collapsed]="!isMobile() && isCollapsed()"
     [class.expanded]="!isMobile() && !isCollapsed()"
   >
-    <main class="relative mx-auto flex w-full max-w-400 flex-1 flex-col p-4 lg:p-12">
-      <mat-toolbar class="w-auto! px-2!">
-        @if (isMobile()) {
-          <button matIconButton (click)="updateSidenavState()" aria-label="Toggle sidebar">
-            <mat-icon appIcon [icon]="icons.menu" />
-          </button>
-        }
+  <mat-toolbar class="w-auto p-2">
+    @if (isMobile()) {
+      <button matIconButton (click)="updateSidenavState()" aria-label="Toggle sidebar">
+        <mat-icon appIcon [icon]="icons.menu" />
+      </button>
+    }
 
-        <h1>AnOS</h1>
+    <h1>AnOS</h1>
 
-        <div class="flex-1"></div>
+    <div class="flex-1"></div>
 
-        <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
-          <mat-icon appIcon [icon]="themeService.isDark() ? icons.sun : icons.moon" />
-        </button>
-      </mat-toolbar>
+    <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
+      <mat-icon appIcon [icon]="themeService.isDark() ? icons.sun : icons.moon" />
+    </button>
+  </mat-toolbar>
+    <main class="mx-auto flex w-full max-w-400 flex-1 flex-col p-4 lg:p-12">
       <router-outlet />
     </main>
 
