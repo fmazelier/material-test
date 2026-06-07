@@ -15,9 +15,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatStepper, MatStepperModule, StepperOrientation } from '@angular/material/stepper';
 import { finalize, switchMap } from 'rxjs';
 
-import { FileUploadInputComponent } from '@shared/components/file-upload-input/file-upload-input.component';
-import { IconComponent } from '@shared/components/icon/icon.component';
-import { SnackbarService } from '@shared/services/snackbar.service';
+import { FileInputComponent } from '@mazelab/ng-kit/form';
+import { IconComponent } from '@mazelab/ng-kit/icon';
+import { SnackbarService } from '@mazelab/ng-kit/snackbar';
 
 import { LucideCircleCheckBig, LucidePencil } from '@lucide/angular';
 
@@ -30,7 +30,7 @@ const STEPPER_MIN_WIDTH_FOR_HORIZONTAL = 600;
 @Component({
   selector: 'app-pdf-masking-form',
   imports: [
-    FileUploadInputComponent,
+    FileInputComponent,
     MatStepperModule,
     MatButtonModule,
     ReactiveFormsModule,
@@ -101,7 +101,7 @@ export default class PdfMaskingFormComponent {
       .uploadVariants(file)
       .pipe(
         finalize(() => this.sendingText.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
         this.snackbarService.success('Fichier texte reçu avec succès');
@@ -119,7 +119,7 @@ export default class PdfMaskingFormComponent {
           return this.pdfMaskingService.fetchAndDownloadProcessedPdf(res.data.processed_filename);
         }),
         finalize(() => this.sendingPdf.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
         this.stepper().selectedIndex = this.stepper().steps.length - 1;

@@ -13,7 +13,7 @@
         (click)="updateSidenavState()"
         aria-label="Toggle sidebar"
       >
-        <mat-icon appIcon [icon]="icons.menu" />
+        <mat-icon mlkIcon [icon]="icons.menu" />
       </button>
 
       @for (link of navLinks; track link.href) {
@@ -23,7 +23,7 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
         >
-          <mat-icon appIcon matListItemIcon [icon]="link.icon" />
+          <mat-icon mlkIcon matListItemIcon [icon]="link.icon" />
           <span matListItemTitle>{{ link.label }}</span>
         </a>
       }
@@ -35,21 +35,21 @@
     [class.collapsed]="!isMobile() && isCollapsed()"
     [class.expanded]="!isMobile() && !isCollapsed()"
   >
-  <mat-toolbar class="w-auto p-2">
-    @if (isMobile()) {
-      <button matIconButton (click)="updateSidenavState()" aria-label="Toggle sidebar">
-        <mat-icon appIcon [icon]="icons.menu" />
+    <mat-toolbar class="w-auto p-2">
+      @if (isMobile()) {
+        <button matIconButton (click)="updateSidenavState()" aria-label="Toggle sidebar">
+          <mat-icon mlkIcon [icon]="icons.menu" />
+        </button>
+      }
+
+      <h1>AnOS</h1>
+
+      <div class="flex-1"></div>
+
+      <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
+        <mat-icon mlkIcon [icon]="themeService.isDark() ? icons.sun : icons.moon" />
       </button>
-    }
-
-    <h1>AnOS</h1>
-
-    <div class="flex-1"></div>
-
-    <button matIconButton aria-label="Toggle theme" (click)="themeService.toggle()">
-      <mat-icon appIcon [icon]="themeService.isDark() ? icons.sun : icons.moon" />
-    </button>
-  </mat-toolbar>
+    </mat-toolbar>
     <main class="mx-auto flex w-full max-w-400 flex-1 flex-col p-4 lg:p-12">
       <router-outlet />
     </main>

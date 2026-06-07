@@ -5,7 +5,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltip } from '@angular/material/tooltip';
 
 import { VariantsStoreService } from '@features/pdf-masking-form/services/variants-store/variants-store.service';
-import { IconComponent } from '@shared/components/icon/icon.component';
+
+import { IconComponent } from '@mazelab/ng-kit/icon';
 
 import { LucideChevronDown, LucideTrash2 } from '@lucide/angular';
 

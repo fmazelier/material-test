@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 
-import { LottieDirective, LottieOptions } from '@shared/directives/lottie.directive';
+import { LottieDirective, LottieOptions } from '@mazelab/ng-kit/directive';
 
 @Component({
   selector: 'app-not-found',
   imports: [LottieDirective, RouterLink, MatButtonModule],
   template: `
     <h1 class="text-6xl">Page non trouvée</h1>
-    <div class="mb-8 max-w-200" appLottie [options]="lottieOptions"></div>
+    <div class="mb-8 max-w-200" mlkLottie [options]="lottieOptions"></div>
     <a matButton="filled" routerLink="/">Retour à l'accueil</a>
   `,
   styles: ``,

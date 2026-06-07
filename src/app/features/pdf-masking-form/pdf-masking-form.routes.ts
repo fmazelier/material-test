@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 
-import { MOCK_ENABLED } from '@core/tokens/mock-enabled.token';
+import { MOCKS_ENABLED } from '@mazelab/ng-kit/token';
 
 import PdfMaskingFormComponent from './pdf-masking-form.component';
 import { PdfMasking } from './services/pdf-masking/pdf-masking.abstract';
@@ -17,7 +17,7 @@ const pdfMaskingFormRoutes: Routes = [
       {
         provide: PdfMasking,
         useFactory: () =>
-          inject(MOCK_ENABLED) ? new PdfMaskingMockService() : new PdfMaskingService(),
+          inject(MOCKS_ENABLED) ? new PdfMaskingMockService() : new PdfMaskingService(),
       },
       VariantsStoreService,
     ],

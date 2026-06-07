@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
 
-import { LottieDirective, LottieOptions } from '@shared/directives/lottie.directive';
+import { LottieDirective, LottieOptions } from '@mazelab/ng-kit/directive';
 
 @Component({
   selector: 'app-landing-page',
@@ -37,7 +37,7 @@ import { LottieDirective, LottieOptions } from '@shared/directives/lottie.direct
       <mat-card
         class="mat-card-color-elev-3 animate-fade-in-up mx-auto max-h-100 w-full max-w-100 overflow-hidden [animation-delay:350ms]!"
       >
-        <div appLottie [options]="lottieOptions"></div>
+        <div mlkLottie [options]="lottieOptions"></div>
       </mat-card>
 
       <a

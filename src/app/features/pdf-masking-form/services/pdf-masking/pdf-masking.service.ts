@@ -2,9 +2,9 @@ import { HttpClient, HttpContext, HttpParams, HttpStatusCode } from '@angular/co
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
-import { ConfigService } from '@core/services/config.service';
-import { IGNORED_ERROR_STATUSES } from '@core/tokens/http-error-context.token';
+import { AppConfigService } from '@core/services/app-config.service';
 
+import { IGNORED_ERROR_STATUSES } from '@mazelab/ng-kit/token';
 import { triggerDownload } from '@mazelab/ng-kit/utils';
 
 import {
@@ -17,7 +17,7 @@ import { PdfMasking } from './pdf-masking.abstract';
 
 @Injectable()
 export class PdfMaskingService extends PdfMasking {
-  private readonly config = inject(ConfigService);
+  private readonly config = inject(AppConfigService);
   private readonly http = inject(HttpClient);
 
   uploadVariants(file: File): Observable<unknown> {

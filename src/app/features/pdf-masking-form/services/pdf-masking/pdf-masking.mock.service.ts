@@ -8,8 +8,8 @@ import {
   VariantsPage,
   VariantsQueryParams,
 } from '@features/pdf-masking-form/models/pdf-masking.model';
-import { SnackbarService } from '@shared/services/snackbar.service';
 
+import { SnackbarService } from '@mazelab/ng-kit/snackbar';
 import { triggerDownload } from '@mazelab/ng-kit/utils';
 
 import { PdfMasking } from './pdf-masking.abstract';

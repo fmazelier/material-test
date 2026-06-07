@@ -18,8 +18,9 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 
 import { FooterComponent } from '@core/layout/footer/footer.component';
-import { ThemeService } from '@core/services/theme.service';
-import { IconComponent } from '@shared/components/icon/icon.component';
+
+import { IconComponent } from '@mazelab/ng-kit/icon';
+import { ThemeService } from '@mazelab/ng-kit/service';
 
 import {
   LucideFileText,
@@ -66,7 +67,7 @@ export class ShellComponent {
 
   protected readonly isMobile: Signal<boolean> = toSignal(
     this.breakpointObserver.observe('(max-width: 600px)').pipe(map(({ matches }) => matches)),
-    { initialValue: false }
+    { initialValue: false },
   );
   protected readonly isCollapsed = signal(false);
 

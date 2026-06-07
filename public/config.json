@@ -2,13 +2,9 @@
   "apiUrl": "https://toto.com",
   "version": "0.2.0-snapshot",
   "deployedAt": null,
-    "keycloak": {
-    "url": "https://devlab-ap.one.ad/auth",
-    "realm": "devlab",
-    "clientId": "chatlab-frontend",
-    "initOptions": {
-      "pkceMethod": "S256",
-      "checkLoginIframe": false
-    }
+  "keycloak": {
+    "url": "https://sso.example.com",
+    "realm": "my-realm",
+    "clientId": "my-app"
   }
 }

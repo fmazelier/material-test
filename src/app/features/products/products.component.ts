@@ -11,7 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 
-import { IconComponent } from '@shared/components/icon/icon.component';
+import { IconComponent } from '@mazelab/ng-kit/icon';
 
 import { LucideSearch, LucideSearchX, LucideX } from '@lucide/angular';
 
@@ -67,7 +67,7 @@ import { ProductsStoreService } from './services/products-store/products-store.s
       <div class="flex flex-wrap items-center gap-4">
         <mat-form-field class="min-w-60 flex-1" subscriptSizing="dynamic" appearance="outline">
           <mat-label>Rechercher</mat-label>
-          <mat-icon matPrefix appIcon [icon]="icons.search" />
+          <mat-icon matPrefix mlkIcon [icon]="icons.search" />
           <input
             matInput
             type="text"
@@ -82,7 +82,7 @@ import { ProductsStoreService } from './services/products-store/products-store.s
               aria-label="Effacer la recherche"
               (click)="onSearchChange('')"
             >
-              <mat-icon appIcon [icon]="icons.close" />
+              <mat-icon mlkIcon [icon]="icons.close" />
             </button>
           }
         </mat-form-field>
@@ -192,7 +192,7 @@ import { ProductsStoreService } from './services/products-store/products-store.s
 
           @if (store.isEmpty() && !store.loading()) {
             <div class="flex flex-col items-center justify-center gap-3 py-16 text-gray-400">
-              <mat-icon appIcon [icon]="icons.searchX" />
+              <mat-icon mlkIcon [icon]="icons.searchX" />
               <p class="mat-body-2 m-0">Aucun produit trouvé pour ces critères.</p>
             </div>
           }

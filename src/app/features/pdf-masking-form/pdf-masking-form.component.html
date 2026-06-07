@@ -3,7 +3,7 @@
     <mat-step [stepControl]="textControl">
       <ng-template matStepLabel>Mots-clés</ng-template>
 
-      <app-file-upload-input
+      <mlk-file-input
         label="Fichier texte contenant les mots à masquer"
         additionalInformations="Un mot par ligne — les occurrences exactes seront masquées dans le PDF - Si des mots sont déjà en mémoire, ils seront remplacés"
         accept=".txt"
@@ -20,7 +20,7 @@
     <mat-step [stepControl]="pdfControl">
       <ng-template matStepLabel>Document PDF</ng-template>
 
-      <app-file-upload-input
+      <mlk-file-input
         label="Fichier PDF à traiter"
         loadingLabel="Traitement en cours..."
         additionalInformations="Le téléchargement du PDF traité se lancera automatiquement après l'envoi"
@@ -36,7 +36,7 @@
     <mat-step>
       <ng-template matStepLabel>Terminé</ng-template>
       <mat-card class="mt-4 flex flex-col items-center gap-6 px-8 py-10 text-center">
-        <mat-icon appIcon class="text-primary" [icon]="icons.check" [size]="64" />
+        <mat-icon mlkIcon class="text-primary" [icon]="icons.check" [size]="64" />
 
         <div class="flex flex-col gap-2">
           <h2 class="text-xl font-semibold">PDF traité avec succès</h2>

@@ -29,6 +29,11 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'forbidden',
+    loadComponent: () => import('@mazelab/ng-kit/ui').then((m) => m.NotFoundComponent),
+    title: '403 - accès interdit',
+  },
+  {
     path: '**',
     loadComponent: () => import('./core/layout/not-found/not-found.component'),
     title: '404 - page non trouvée',

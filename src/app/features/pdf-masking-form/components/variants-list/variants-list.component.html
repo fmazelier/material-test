@@ -39,7 +39,7 @@
         (click)="store.loadMore()"
         aria-label="Charger plus de variants"
       >
-        <mat-icon appIcon [icon]="icons.chevronDown" [loading]="store.loading()" />
+        <mat-icon mlkIcon [icon]="icons.chevronDown" [loading]="store.loading()" />
         Afficher plus
       </button>
     }
@@ -54,7 +54,7 @@
         matTooltip="Supprimer tous les mots en mémoire"
         matTooltipPosition="right"
       >
-        <mat-icon appIcon [icon]="icons.trash" [loading]="store.isDeleting()" />
+        <mat-icon mlkIcon [icon]="icons.trash" [loading]="store.isDeleting()" />
       </button>
     }
   </div>

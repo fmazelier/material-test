@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { map, Observable, tap } from 'rxjs';
 
-import { PaginatedResult, PaginatedStore } from '@shared/store/paginated-store';
+import { PaginatedResult, PaginatedStore } from '@mazelab/ng-kit/store';
 
 import {
   DummyJsonCategory,
