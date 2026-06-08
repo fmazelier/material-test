@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { NavLink, MainLayoutComponent as toto } from '@mazelab/ng-kit/ui';
+import { MlkMainLayoutComponent, NavLink } from '@mazelab/ng-kit/ui';
 
 import {
   LucideBoxes,
@@ -15,7 +15,7 @@ import {
 
 @Component({
   selector: 'app-main-layout',
-  imports: [toto],
+  imports: [MlkMainLayoutComponent],
   template: `
     <mlk-main-layout [navLinks]="navLinks">
       <h1 app-name>AnOS</h1>

@@ -17,7 +17,6 @@ import {
 
 import { CustomTitleStrategyService } from '@core/services/custom-title-strategy.service';
 
-import { assertMlkKeycloakRuntimeConfig, mlkAuthInterceptor } from '@mazelab/ng-kit/auth';
 import { provideMlkRuntimeConfig, provideMlkRuntimeConfigLoader } from '@mazelab/ng-kit/bootstrap';
 import { httpErrorInterceptor } from '@mazelab/ng-kit/interceptor';
 import { provideMlkFrenchMaterialDefaults } from '@mazelab/ng-kit/material';
@@ -34,10 +33,9 @@ export function provideAppRuntime(): EnvironmentProviders {
       requiredKeys: ['apiUrl', 'keycloak'],
       appName,
       appVersion,
-      validate: (raw) => assertMlkKeycloakRuntimeConfig((raw as AppEnv).keycloak, 'keycloak'),
     }),
     provideMlkRuntimeConfigLoader<AppEnv>(),
-    provideHttpClient(withInterceptors([httpErrorInterceptor, mlkAuthInterceptor])),
+    provideHttpClient(withInterceptors([httpErrorInterceptor])),
   ]);
 }
 
