@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
 
-import { ShellComponent } from '@core/layout/shell/shell.component';
+import { MainLayoutComponent } from '@core/layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: ShellComponent,
+    component: MainLayoutComponent,
     children: [
       {
         path: '',
@@ -30,12 +30,12 @@ export const routes: Routes = [
   },
   {
     path: 'forbidden',
-    loadComponent: () => import('@mazelab/ng-kit/ui').then((m) => m.NotFoundComponent),
+    loadComponent: () => import('@mazelab/ng-kit/ui').then((m) => m.ErrorPageComponent),
     title: '403 - accès interdit',
   },
   {
     path: '**',
-    loadComponent: () => import('./core/layout/not-found/not-found.component'),
+    loadComponent: () => import('@mazelab/ng-kit/ui').then((m) => m.ErrorPageComponent),
     title: '404 - page non trouvée',
   },
 ];
